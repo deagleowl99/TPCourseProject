@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Добавление типа пользователя</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<form method="POST">{% csrf_token %}
+				<p><input type="text" name="usertype_id" placeholder="Код типа пользователя" value="{{ form.usertype_id }}" autocomplete="off"></p>
+				<p><input type="text" name="usertype_name" placeholder="Название типа пользователя" value="{{ form.usertype_name }}" autocomplete="off"></p>
+				<p><input type="submit" value="Добавить"></p>
+				{{ form.errors }}			
+			</form>
+	</body>
+</html>

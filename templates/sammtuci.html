@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html>
+	<div class="header">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	{% block content %}
+	{% endblock %}
+		<link rel="stylesheet" href="{% static 'css/article.css' %}">
+		<div class="reg"><h><a href = "../registration" style="color: #ffffff">Регистрация</a>
+		{% if request.user.is_authenticated %}
+		{{user.username}}
+		{{user.Surname}}
+		{{user.Name}}
+		{{user.Fathername}}
+		{% if user.is_superuser %}
+		Администратор
+		{% else %}
+		{{user.User_Type}}		
+		{% endif %}
+		<a href = "{% url 'logout' %}" style="color: #ffffff">Выйти</a>
+		<a href = "{% url 'password_change' %}" style="color: #ffffff">Сменить пароль</a>
+		{% else %}
+		<a href = "../login" style="color: #ffffff">Вход</a>
+		{% endif %}
+		</div>
+		{% if user.is_superuser %}
+		<p><a href = "{% url 'create_branch' %}" style="color: #ffffff">Добавить направление</a>
+		<a href = "{% url 'read_branch' %}" style="color: #ffffff">Список направлений</a>
+		<a href = "{% url 'update_branch' %}" style="color: #ffffff">Изменить направление</a>
+		<a href = "{% url 'delete_branch' %}" style="color: #ffffff">Удалить направление</a></p>
+		<p><a href = "{% url 'create_faculty' %}" style="color: #ffffff">Добавить факультет</a>
+		<a href = "{% url 'read_faculty' %}" style="color: #ffffff">Список факультетов</a>
+		<a href = "{% url 'update_faculty' %}" style="color: #ffffff">Изменить факультет</a>
+		<a href = "{% url 'delete_faculty' %}" style="color: #ffffff">Удалить факультет</a></p>
+		<p><a href = "{% url 'create_department' %}" style="color: #ffffff">Добавить кафедру</a>		
+		<a href = "{% url 'read_department' %}" style="color: #ffffff">Список кафедр</a>
+		<a href = "{% url 'update_department' %}" style="color: #ffffff">Изменить кафедру</a>
+		<a href = "{% url 'delete_department' %}" style="color: #ffffff">Удалить кафедру</a></p>
+		<p><a href = "{% url 'create_usertype' %}" style="color: #ffffff">Добавить тип пользователя</a>
+		<a href = "{% url 'read_usertype' %}" style="color: #ffffff">Список типов пользователя</a>
+		<a href = "{% url 'update_usertype' %}" style="color: #ffffff">Изменить тип пользователя</a>
+		<a href = "{% url 'delete_usertype' %}" style="color: #ffffff">Удалить тип пользователя</a></p>
+		<p><a href = "{% url 'create_deaneryuser' %}" style="color: #ffffff">Добавить сотрудника учебного отдела</a>
+		<a href = "{% url 'read_deaneryuser' %}" style="color: #ffffff">Список сотрудников учебного отдела</a>
+		<a href = "{% url 'update_deaneryuser' %}" style="color: #ffffff">Изменить сотрудника учебного отдела</a>
+		<a href = "{% url 'delete_deaneryuser' %}" style="color: #ffffff">Удалить сотрудника учебного отдела</a></p>
+		<p><a href = "{% url 'create_mark' %}" style="color: #ffffff">Добавить оценку</a>
+		<a href = "{% url 'read_mark' %}" style="color: #ffffff">Список оценок</a>
+		<a href = "{% url 'update_mark' %}" style="color: #ffffff">Изменить оценку</a>
+		<a href = "{% url 'delete_mark' %}" style="color: #ffffff">Удалить оценку</a></p>
+		<p><a href = "{% url 'create_year' %}" style="color: #ffffff">Добавить учебный год</a>
+		<a href = "{% url 'read_year' %}" style="color: #ffffff">Список учебных лет</a>
+		<a href = "{% url 'update_year' %}" style="color: #ffffff">Изменить учебный год</a>
+		<a href = "{% url 'delete_year' %}" style="color: #ffffff">Удалить учебный год</a></p>
+		{% else %}
+		{% if user.User_Type %}
+		<p><a href = "{% url 'create_group' %}" style="color: #ffffff">Добавить группу студентов</a>
+		<a href = "{% url 'read_group' %}" style="color: #ffffff">Список групп студентов</a>
+		<a href = "{% url 'update_group' %}" style="color: #ffffff">Изменить группу студентов</a>
+		<a href = "{% url 'delete_group' %}" style="color: #ffffff">Удалить группу студентов</a></p>
+		<p><a href = "{% url 'create_teacher' %}" style="color: #ffffff">Добавить преподавателя</a>		
+		<a href = "{% url 'read_teacher' %}" style="color: #ffffff">Список преподавателей</a>
+		<a href = "{% url 'update_teacher' %}" style="color: #ffffff">Изменить преподавателя</a>
+		<a href = "{% url 'delete_teacher' %}" style="color: #ffffff">Удалить преподавателя</a></p>
+		<p><a href = "{% url 'create_student' %}" style="color: #ffffff">Добавить студента</a>
+		<a href = "{% url 'read_student' %}" style="color: #ffffff">Список студентов</a>
+		<a href = "{% url 'update_student' %}" style="color: #ffffff">Изменить студента</a>
+		<a href = "{% url 'delete_student' %}" style="color: #ffffff">Удалить студента</a></p>
+		<p><a href = "{% url 'create_subject' %}" style="color: #ffffff">Добавить учебную дисциплину</a>
+		<a href = "{% url 'read_subject' %}" style="color: #ffffff">Список учебных дисциплин</a>
+		<a href = "{% url 'update_subject' %}" style="color: #ffffff">Изменить учебную дисциплину</a>
+		<a href = "{% url 'delete_subject' %}" style="color: #ffffff">Удалить учебную дисциплину</a></p>
+		<p><a href = "{% url 'create_subjectduringyear' %}" style="color: #ffffff">Добавить преподаваемую дисциплину</a>
+		<a href = "{% url 'read_subjectduringyear' %}" style="color: #ffffff">Список преподаваемых дисциплин</a>
+		<a href = "{% url 'update_subjectduringyear' %}" style="color: #ffffff">Изменить преподаваемую дисциплину</a>
+		<a href = "{% url 'delete_subjectduringyear' %}" style="color: #ffffff">Удалить преподаваемую дисциплину</a></p>
+		{% endif %}
+		{{form.errors}}
+		{% endif %}
+	</body>
+</html>

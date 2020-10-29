@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Изменить оценку</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<form method="POST">{% csrf_token %}
+				<p><select name="mark_text"> 
+				<option value="Выберите оценку" disabled="true" selected>Выберите оценку</option>
+				{% for mark in mark %}
+				<option>{{ mark.Mark_Text }}</option>
+				{% if mark == current_mark %}selected="selected"{% endif %}>
+				{{mark.Mark_Text|capfirst}}
+				</option>
+				{% endfor %}></select></p>			
+				<p><input type="text" name="mark_text2" placeholder="Новый текст оценки" value="{{ form.mark_text2 }}" autocomplete="off"></p>
+				<p><input type="submit" value="Изменить"></p>
+				{{ form.errors }}			
+			</form>
+	</body>
+</html>

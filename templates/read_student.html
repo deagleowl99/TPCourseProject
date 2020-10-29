@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Список студентов</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<table border="1">
+			<tr>
+			<th>Номер студента</th>
+			<th>Фамилия</th>
+			<th>Имя</th>
+			<th>Отчество</th>
+			<th>Логин</th>
+			<th>Почта</th>
+			<th>Дата поступелния</th>
+			<th>Номер группы</th>
+			<th>Успеваемость</th>
+			</tr>
+			{% for student in student %}
+			<tr><th>{{student.id}}</th><th>{{student.Surname}}</th><th>{{student.Name}}</th><th>{{student.Fathername}}</th>
+			<th>{{student.username}}</th><th>{{student.email}}</th><th>{{student.Start_Date}}</th>
+			<th>{{student.Group_ID}}</th><th>{{student.Points}}</th></tr>
+			{% endfor %}
+			</table>
+	</body>
+</html>

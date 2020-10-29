@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Добавление новой преподаваемой дисциплины</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<form method="POST">{% csrf_token %}
+				<p><input type="text" name="subjectduringyear_id" placeholder="Номер преподаваемой дисплины" value="{{ form.subjectduringyear_id }}" autocomplete="off"></p>
+				<p><input type="text" name="semester" placeholder="Номер семестра" value="{{ form.semester }}" autocomplete="off"></p>
+				<select name="branch_name"> 
+				<option value="Выберите название направления" disabled="true" selected>Выберите название направления</option>
+				{% for branch in branch %}
+				<option>{{ branch.Branch_Name }}</option>
+				{% if branch == current_branch %}selected="selected"{% endif %}>
+				{{branch.Branch_Name|capfirst}}
+				</option>
+				{% endfor %}></select>
+				<p><select name="subject_name"> 
+				<option value="Выберите название учебной дисцплины" disabled="true" selected>Выберите учебной дисциплины</option>
+				{% for subject in subject %}
+				<option>{{ subject.Subject_Name }}</option>
+				{% if subject == current_subject %}selected="selected"{% endif %}>
+				{{subject.Subject_Name|capfirst}}
+				</option>
+				{% endfor %}></select></p>
+				<p><select name="teacher_id"> 
+				<option value="Выберите номер преподавателя" disabled="true" selected>Выберите номер преподавателя</option>
+				{% for teacher in teacher %}
+				<option>{{ teacher.id }}</option>
+				{% if teacher == current_teacher %}selected="selected"{% endif %}>
+				{{teacher.id|capfirst}}
+				</option>
+				{% endfor %}></select></p>
+				<p><input type="submit" value="Добавить"></p>
+				{{ form.errors }}			
+			</form>
+	</body>
+</html>

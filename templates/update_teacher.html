@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Изменить преподавателя</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<form method="POST">{% csrf_token %}
+				<p><select name="teacher_id"> 
+				<option value="Выберите номер преподавателя" disabled="true" selected>Выберите номер преподавателя</option>
+				{% for teacher in teacher %}
+				<option>{{teacher.id}}</option>
+				{% if teacher == current_teacher %}selected="selected"{% endif %}>
+				{{teacher.Surname|capfirst}}
+				</option>
+				{% endfor %}></select></p>
+				<p><input type="text" name="surname" placeholder="Фамилия" value="{{ form.surname }}" autocomplete="off"></p>
+				<p><input type="text" name="name" placeholder="Имя" value="{{ form.name }}" autocomplete="off"></p>
+				<p><input type="text" name="fathername" placeholder="Отчество" value="{{ form.fathername }}" autocomplete="off"></p>
+				<p><input type="text" name="login" placeholder="Логин" value="{{ form.login }}" autocomplete="off"></p>
+				<p><input type="text" name="mail" placeholder="Почта" value="{{ form.mail }}" autocomplete="off"></p>
+				<p><input type="text" name="startwork_date" placeholder="Дата начала работы" value="{{ form.startwork_date }}" autocomplete="off"></p>
+				<p><select name="department_name">
+				<option value="Выберите название кафедры" disabled="true" selected>Выберите название кафедры</option>
+				{% for department in department %}
+				<option>{{ department.Department_Name }}</option>
+				{% if department == current_department %}selected="selected"{% endif %}>
+				{{department.Department_Name|capfirst}}
+				</option>
+				{% endfor %}></select></p>
+				<p><input type="submit" value="Изменить"></p>
+				{{ form.errors }}			
+			</form>
+	</body>
+</html>
