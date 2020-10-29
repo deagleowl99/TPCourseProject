@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Список преподавателей</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<table border="1">
+			<tr>
+			<th>Номер преподавателя</th>
+			<th>Фамилия</th>
+			<th>Имя</th>
+			<th>Отчество</th>
+			<th>Логин</th>
+			<th>Почта</th>
+			<th>Дата трудоустройства</th>
+			<th>Название кафедры</th>
+			</tr>
+			{% for teacher in teacher %}
+			<tr><th>{{teacher.id}}</th><th>{{teacher.Surname}}</th><th>{{teacher.Name}}</th><th>{{teacher.Fathername}}</th>
+			<th>{{teacher.username}}</th><th>{{teacher.email}}</th><th>{{teacher.StartWork_Date}}</th>
+			<th>{{teacher.Department_ID}}</th></tr>
+			{% endfor %}
+			</table>
+	</body>
+</html>

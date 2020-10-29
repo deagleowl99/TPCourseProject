@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Удалить преподаваемую дисциплину</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<form method="POST">{% csrf_token %}
+				<p><select name="subjectduringyear_name"> 
+				<option value="Выберите название преподаваемой дисциплины" disabled="true" selected>Выберите преподаваемой дисциплину</option>
+				{% for subjectduringyear in subjectduringyear %}
+				<option>{{ subjectduringyear.Subject2_ID }}</option>
+				{% if subjectduringyear == current_subjectduringyear %}selected="selected"{% endif %}>
+				{{subjectduringyear.Subject2_ID|capfirst}}
+				</option>
+				{% endfor %}></select></p>			
+				<p><input type="submit" value="Удалить"></p>
+				{{ form.errors }}			
+			</form>
+	</body>
+</html>

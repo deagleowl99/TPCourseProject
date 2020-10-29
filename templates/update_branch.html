@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Изменить направление</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<form method="POST">{% csrf_token %}
+				<p><select name="branch_name"> 
+				<option value="Выберите название направления" disabled="true" selected>Выберите название направления</option>
+				{% for branch in branch %}
+				<option>{{ branch.Branch_Name }}</option>
+				{% if branch == current_branch %}selected="selected"{% endif %}>
+				{{branch.Branch_Name|capfirst}}
+				</option>
+				{% endfor %}></select></p>			
+				<p><input type="text" name="branch_name2" placeholder="Новое название направления" value="{{ form.branch_name2 }}" autocomplete="off"></p>
+				<p><input type="submit" value="Изменить"></p>
+				{{ form.errors }}			
+			</form>
+	</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Список учебных дисциплин</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<table border="1">
+			<tr>
+			<th>Номер учебной дисциплины</th>
+			<th>Название учебой дисциплины</th>
+			<th>Название кафедры</th>
+			</tr>
+			{% for subject in subject %}
+			<tr><th>{{subject.Subject_ID}}</th><th>{{subject.Subject_Name}}</th><th>{{subject.Department_ID}}</th></tr>
+			{% endfor %}
+			</table>
+	</body>
+</html>

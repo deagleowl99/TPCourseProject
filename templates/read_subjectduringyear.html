@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Список преподаваемых дисциплин</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<table border="1">
+			<tr>
+			<th>Номер преподаваемой дисциплины</th>
+			<th>Название направления</th>
+			<th>Название учебной дисциплины</th>
+			<th>ФИО преподавателя</th>
+			<th>Семестр</th>
+			</tr>
+			{% for subjectduringyear in subjectduringyear %}
+			<tr><th>{{subjectduringyear.Subject2_ID}}</th><th>{{subjectduringyear.Branch_ID}}</th><th>{{subjectduringyear.Subject_ID}}</th>
+			<th>{{subjectduringyear.Teacher_ID}}</th><th>{{subjectduringyear.Semester}}</th></tr>
+			{% endfor %}
+			</table>
+	</body>
+</html>
