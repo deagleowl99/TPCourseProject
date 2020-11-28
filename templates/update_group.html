@@ -8,6 +8,33 @@
         {% load static %}
     </div>
 	<body bgcolor="#800000">
+	<script>
+	var n = 0;
+   function changeFunc($i) 
+   {   
+	   n = n + 1;
+	   if (n == 3)
+	   {
+       document.getElementById("Изменить").disabled = false;
+	   }
+   }
+   function changeFunc2($i) 
+   {
+	   n = n + 1;
+	   if (n == 3)
+	   {
+       document.getElementById("Изменить").disabled = false;
+	   }	     
+   }
+   function changeFunc3($i) 
+   {
+	   n = n + 1;
+	   if (n == 3)
+	   {
+       document.getElementById("Изменить").disabled = false;
+	   }	     
+   }
+  </script>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}">
 	<div class="reg">
 		{% if request.user.is_authenticated %} 
@@ -22,7 +49,7 @@
 			<h1><font color="ffffff">Изменить группу</font></h1>
 			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
 			<form method="POST">{% csrf_token %}
-				<p><select name="group_name"> 
+				<p><select name="group_name" onchange="changeFunc(value)"> 
 				<option value="Выберите номер группы" disabled="true" selected>Выберите номер группы</option>
 				{% for group in group %}
 				<option>{{ group.Group_ID }}</option>
@@ -30,7 +57,7 @@
 				{{group.Group_ID|capfirst}}
 				</option>
 				{% endfor %}></select></p>			
-				<p><select name="year_id"> 
+				<p><select name="year_id" onchange="changeFunc2(value)"> 
 				<option value="Выберите учебный год" disabled="true" selected>Выберите учебный год</option>
 				{% for year in year %}
 				<option>{{ year.Year_Name }}</option>
@@ -38,7 +65,7 @@
 				{{year.Year_Name|capfirst}}
 				</option>
 				{% endfor %}></select></p>			
-				<p><select name="branch_id"> 
+				<p><select name="branch_id" onchange="changeFunc3(value)"> 
 				<option value="Выберите направление" disabled="true" selected>Выберите направление</option>
 				{% for branch in branch %}
 				<option>{{ branch.Branch_Name }}</option>
@@ -46,7 +73,7 @@
 				{{branch.Branch_Name|capfirst}}
 				</option>
 				{% endfor %}></select></p>	
-				<p><input type="submit" value="Изменить"></p>
+				<p><input type="submit" id="Изменить" value="Изменить" disabled="true"></p>
 				{{ form.errors }}			
 			</form>
 	</body>

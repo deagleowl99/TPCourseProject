@@ -8,6 +8,25 @@
         {% load static %}
     </div>
 	<body bgcolor="#800000">
+	<script>
+	var n = 0;
+   function changeFunc($i) 
+   {   
+	   n = n + 1;
+	   if (n == 2)
+	   {
+       document.getElementById("Добавить").disabled = false;
+	   }
+   }
+   function changeFunc2($i) 
+   {
+	   n = n + 1;
+	   if (n == 2)
+	   {
+       document.getElementById("Добавить").disabled = false;
+	   }	     
+   }
+  </script>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}">
 	<div class="reg">
 		{% if request.user.is_authenticated %} 
@@ -23,7 +42,7 @@
 			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
 			<form method="POST">{% csrf_token %}
 				<p><input type="text" name="group_id" placeholder="Номер группы" value="{{ form.group_id }}" autocomplete="off"></p>
-				<p><select name="year_id"> 
+				<p><select name="year_id" onchange="changeFunc(value)"> 
 				<option value="Выберите учебный год" disabled="true" selected>Выберите учебный год</option>
 				{% for year in year %}
 				<option>{{ year.Year_Name }}</option>
@@ -31,7 +50,7 @@
 				{{year.Year_Name|capfirst}}
 				</option>
 				{% endfor %}></select></p>			
-				<p><select name="branch_id"> 
+				<p><select name="branch_id" onchange="changeFunc2(value)"> 
 				<option value="Выберите направление" disabled="true" selected>Выберите направление</option>
 				{% for branch in branch %}
 				<option>{{ branch.Branch_Name }}</option>
@@ -39,7 +58,7 @@
 				{{branch.Branch_Name|capfirst}}
 				</option>
 				{% endfor %}></select></p>			
-				<p><input type="submit" value="Добавить"></p>
+				<p><input type="submit" id="Добавить" value="Добавить" disabled="true"></p>
 				{{ form.errors }}			
 			</form>
 	</body>

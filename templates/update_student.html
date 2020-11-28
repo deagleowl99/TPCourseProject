@@ -8,6 +8,25 @@
         {% load static %}
     </div>
 	<body bgcolor="#800000">
+	<script>
+	var n = 0;
+   function changeFunc($i) 
+   {   
+	   n = n + 1;
+	   if (n == 2)
+	   {
+       document.getElementById("Изменить").disabled = false;
+	   }
+   }
+   function changeFunc2($i) 
+   {
+	   n = n + 1;
+	   if (n == 2)
+	   {
+       document.getElementById("Изменить").disabled = false;
+	   }	     
+   }
+  </script>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}">
 	<div class="reg">
 		{% if request.user.is_authenticated %} 
@@ -22,7 +41,7 @@
 			<h1><font color="ffffff">Изменить студента</font></h1>
 			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
 			<form method="POST">{% csrf_token %}
-				<p><select name="student_id"> 
+				<p><select name="student_id" onchange="changeFunc(value)"> 
 				<option value="Выберите номер студента" disabled="true" selected>Выберите номер студента</option>
 				{% for student in student %}
 				<option>{{student.id}}</option>
@@ -37,7 +56,7 @@
 				<p><input type="text" name="mail" placeholder="Почта" value="{{ form.mail }}" autocomplete="off"></p>
 				<p><input type="text" name="start_date" placeholder="Дата поступления" value="{{ form.start_date }}" autocomplete="off"></p>
 				<p><input type="text" name="points" placeholder="Успеваемость" value="{{ form.points }}" autocomplete="off"></p>
-				<p><select name="group_name">
+				<p><select name="group_name" onchange="changeFunc2(value)">
 				<option value="Выберите номер группы" disabled="true" selected>Выберите номер группы</option>
 				{% for group in group %}
 				<option>{{ group.Group_ID }}</option>
@@ -45,7 +64,7 @@
 				{{group.Group_ID|capfirst}}
 				</option>
 				{% endfor %}></select></p>
-				<p><input type="submit" value="Изменить"></p>
+				<p><input type="submit" id="Изменить" value="Изменить" disabled="true"></p>
 				{{ form.errors }}			
 			</form>
 	</body>

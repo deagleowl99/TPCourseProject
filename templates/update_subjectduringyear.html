@@ -8,6 +8,41 @@
         {% load static %}
     </div>
 	<body bgcolor="#800000">
+	<script>
+	var n = 0;
+   function changeFunc($i) 
+   {   
+	   n = n + 1;
+	   if (n == 4)
+	   {
+       document.getElementById("Изменить").disabled = false;
+	   }
+   }
+   function changeFunc2($i) 
+   {
+	   n = n + 1;
+	   if (n == 4)
+	   {
+       document.getElementById("Изменить").disabled = false;
+	   }	     
+   }
+   function changeFunc3($i) 
+   {
+	   n = n + 1;
+	   if (n == 4)
+	   {
+       document.getElementById("Изменить").disabled = false;
+	   }	     
+   }
+   function changeFunc4($i) 
+   {
+	   n = n + 1;
+	   if (n == 4)
+	   {
+       document.getElementById("Изменить").disabled = false;
+	   }	     
+   }
+  </script>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}">
 	<div class="reg">
 		{% if request.user.is_authenticated %} 
@@ -22,7 +57,7 @@
 			<h1><font color="ffffff">Изменение преподаваемой дисциплины</font></h1>
 			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
 			<form method="POST">{% csrf_token %}
-				<p><select name="subjectduringyear_name"> 
+				<p><select name="subjectduringyear_name" onchange="changeFunc(value)"> 
 				<option value="Выберите номер преподаваемой дисциплины" disabled="true" selected>Выберите номер преподаваемой дисциплины</option>
 				{% for subjectduringyear in subjectduringyear %}
 				<option>{{ subjectduringyear.Subject2_ID }}</option>
@@ -31,7 +66,7 @@
 				</option>
 				{% endfor %}></select></p>
 				<p><input type="text" name="semester" placeholder="Номер семестра" value="{{ form.semester }}" autocomplete="off"></p>
-				<select name="branch_name"> 
+				<select name="branch_name" onchange="changeFunc2(value)"> 
 				<option value="Выберите название направления" disabled="true" selected>Выберите название направления</option>
 				{% for branch in branch %}
 				<option>{{ branch.Branch_Name }}</option>
@@ -39,7 +74,7 @@
 				{{branch.Branch_Name|capfirst}}
 				</option>
 				{% endfor %}></select>
-				<p><select name="subject_name"> 
+				<p><select name="subject_name" onchange="changeFunc3(value)"> 
 				<option value="Выберите название учебной дисцплины" disabled="true" selected>Выберите учебной дисциплины</option>
 				{% for subject in subject %}
 				<option>{{ subject.Subject_Name }}</option>
@@ -47,7 +82,7 @@
 				{{subject.Subject_Name|capfirst}}
 				</option>
 				{% endfor %}></select></p>
-				<p><select name="teacher_id"> 
+				<p><select name="teacher_id" onchange="changeFunc4(value)"> 
 				<option value="Выберите номер преподавателя" disabled="true" selected>Выберите номер преподавателя</option>
 				{% for teacher in teacher %}
 				<option>{{ teacher.id }}</option>
@@ -55,7 +90,7 @@
 				{{teacher.id|capfirst}}
 				</option>
 				{% endfor %}></select></p>
-				<p><input type="submit" value="Изменить"></p>
+				<p><input type="submit" id="Изменить" value="Изменить" disabled="true"></p>
 				{{ form.errors }}			
 			</form>
 	</body>

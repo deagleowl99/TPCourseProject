@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<script>
+   function changeFunc($i) 
+   {   
+       document.getElementById("Удалить").disabled = false;
+   }
+   </script>
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Удалить задание</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<form method="POST">{% csrf_token %}
+				<p><select name="task_id" onchange="changeFunc(value)"> 
+				<option value="Выберите номер задания" disabled="true" selected>Выберите номер задания</option>
+				{% for task in task %}
+				<option>{{ task.Task_ID }}</option>
+				{% if present == current_present %}selected="selected"{% endif %}>
+				{{task.Task_ID|capfirst}}
+				</option>
+				{% endfor %}></select></p>			
+				<p><input type="submit" id="Удалить" value="Удалить" disabled="true"></p>
+				{{ form.errors }}			
+			</form>
+	</body>
+</html>

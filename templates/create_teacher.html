@@ -8,6 +8,12 @@
         {% load static %}
     </div>
 	<body bgcolor="#800000">
+	<script>
+   function changeFunc($i) 
+   {
+       document.getElementById("Добавить").disabled = false;
+   }
+  </script>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}">
 	<div class="reg">
 		{% if request.user.is_authenticated %} 
@@ -29,7 +35,7 @@
 				<p><input type="text" name="mail" placeholder="Почта" value="{{ form.mail }}" autocomplete="off"></p>
 				<p><input type="text" name="password" placeholder="Пароль" value="{{ form.password }}" autocomplete="off"></p>
 				<p><input type="text" name="startwork_date" placeholder="Дата начала работы" value="{{ form.startwork_date }}" autocomplete="off"></p>
-				<p><select name="department_name"> 
+				<p><select name="department_name" onchange="changeFunc(value)"> 
 				<option value="Выберите название кафедры" disabled="true" selected>Выберите название кафедры</option>
 				{% for department in department %}
 				<option>{{ department.Department_Name }}</option>
@@ -37,7 +43,7 @@
 				{{department.Department_Name|capfirst}}
 				</option>
 				{% endfor %}></select></p>
-				<p><input type="submit" value="Добавить"></p>
+				<p><input type="submit" id="Добавить" value="Добавить" disabled="true"></p>
 				{{ form.errors }}			
 			</form>
 	</body>

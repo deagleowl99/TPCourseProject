@@ -8,6 +8,25 @@
         {% load static %}
     </div>
 	<body bgcolor="#800000">
+	<script>
+	var n = 0;
+   function changeFunc($i) 
+   {   
+	   n = n + 1;
+	   if (n == 2)
+	   {
+       document.getElementById("Изменить").disabled = false;
+	   }
+   }
+   function changeFunc2($i) 
+   {
+	   n = n + 1;
+	   if (n == 2)
+	   {
+       document.getElementById("Изменить").disabled = false;
+	   }	     
+   }
+  </script>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}">
 	<div class="reg">
 		{% if request.user.is_authenticated %} 
@@ -22,7 +41,7 @@
 			<h1><font color="ffffff">Изменить сотрудника учебного отдела</font></h1>
 			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
 			<form method="POST">{% csrf_token %}
-				<p><select name="deaneryuser_id"> 
+				<p><select name="deaneryuser_id" onchange="changeFunc(value)"> 
 				<option value="Выберите номер сотрудника" disabled="true" selected>Выберите номер сотрудника</option>
 				{% for deaneryuser in deaneryuser %}
 				<option>{{deaneryuser.id}}</option>
@@ -36,7 +55,7 @@
 				<p><input type="text" name="login" placeholder="Логин" value="{{ form.login }}" autocomplete="off"></p>
 				<p><input type="text" name="mail" placeholder="Почта" value="{{ form.mail }}" autocomplete="off"></p>
 				<p><input type="text" name="startwork_date" placeholder="Дата начала работы" value="{{ form.startwork_date }}" autocomplete="off"></p>
-				<p><select name="faculty_name">
+				<p><select name="faculty_name" onchange="changeFunc2(value)">
 				<option value="Выберите название факультета" disabled="true" selected>Выберите название факультета</option>
 				{% for faculty in faculty %}
 				<option>{{ faculty.Faculty_Name }}</option>
@@ -44,7 +63,7 @@
 				{{faculty.Faculty_Name|capfirst}}
 				</option>
 				{% endfor %}></select></p>
-				<p><input type="submit" value="Регистрация"></p>
+				<p><input type="submit" id="Изменить" value="Изменить" disabled="true"></p>
 				{{ form.errors }}			
 			</form>
 	</body>

@@ -54,8 +54,12 @@
 		<a href = "{% url 'read_year' %}" style="color: #ffffff">Список учебных лет</a>
 		<a href = "{% url 'update_year' %}" style="color: #ffffff">Изменить учебный год</a>
 		<a href = "{% url 'delete_year' %}" style="color: #ffffff">Удалить учебный год</a></p>
+		<p><a href = "{% url 'create_presenttype' %}" style="color: #ffffff">Добавить вид баллов</a>
+		<a href = "{% url 'read_presenttype' %}" style="color: #ffffff">Список видов баллов</a>
+		<a href = "{% url 'update_presenttype' %}" style="color: #ffffff">Изменить вид баллов</a>
+		<a href = "{% url 'delete_presenttype' %}" style="color: #ffffff">Удалить вид баллов</a></p>
 		{% else %}
-		{% if user.User_Type %}
+		{% if user.User_Type.User_Type_Name == "Сотрудник учебного отдела" %}
 		<p><a href = "{% url 'create_group' %}" style="color: #ffffff">Добавить группу студентов</a>
 		<a href = "{% url 'read_group' %}" style="color: #ffffff">Список групп студентов</a>
 		<a href = "{% url 'update_group' %}" style="color: #ffffff">Изменить группу студентов</a>
@@ -76,6 +80,27 @@
 		<a href = "{% url 'read_subjectduringyear' %}" style="color: #ffffff">Список преподаваемых дисциплин</a>
 		<a href = "{% url 'update_subjectduringyear' %}" style="color: #ffffff">Изменить преподаваемую дисциплину</a>
 		<a href = "{% url 'delete_subjectduringyear' %}" style="color: #ffffff">Удалить преподаваемую дисциплину</a></p>
+		{% else %}
+		{% if user.User_Type.User_Type_Name == "Преподаватель" %}
+		<p><a href = "{% url 'create_task' %}" style="color: #ffffff">Добавить задание</a>
+		<a href = "{% url 'read_task' %}" style="color: #ffffff">Список заданий</a>
+		<a href = "{% url 'update_task' %}" style="color: #ffffff">Изменить задание</a>
+		<a href = "{% url 'delete_task' %}" style="color: #ffffff">Удалить задание</a></p>
+		<p><a href = "{% url 'create_present' %}" style="color: #ffffff">Добавить баллы</a>
+		<a href = "{% url 'read_present' %}" style="color: #ffffff">Список баллов</a>
+		<a href = "{% url 'update_present' %}" style="color: #ffffff">Изменить баллы</a>
+		<a href = "{% url 'delete_present' %}" style="color: #ffffff">Удалить баллы</a></p>
+		<p><a href = "{% url 'teacher_read_taskgive' %}" style="color: #ffffff">Список сдач заданий</a>
+		<a href = "{% url 'teacher_update_taskgive' %}" style="color: #ffffff">Выдача оценки за сдачу задания</a></p>
+		<p><a href = "{% url 'teacher_read_student' %}" style="color: #ffffff">Список студентов по группе</a></p>
+		<p><a href = "{% url 'teacher_read_subjectduringyear' %}" style="color: #ffffff">Список ваших преподаваемых дисциплин</a></p>
+		{% else %}
+		{% if user.User_Type.User_Type_Name == "Студент" %}
+		<a href = "{% url 'student_read_task' %}" style="color: #ffffff">Список заданий</a>
+		<p><a href = "{% url 'create_taskgive' %}" style="color: #ffffff">Создать сдачу задания</a>
+		<a href = "{% url 'read_taskgive' %}" style="color: #ffffff">Список сдач заданий</a>
+		{% endif %}
+		{% endif %}
 		{% endif %}
 		{{form.errors}}
 		{% endif %}

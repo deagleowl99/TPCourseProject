@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<script>
+	var n = 0;
+   function changeFunc($i) 
+   {   
+	   n = n + 1;
+	   if (n == 3)
+	   {
+       document.getElementById("Добавить").disabled = false;
+	   }
+   }
+   function changeFunc2($i) 
+   {
+	   if(document.getElementById("text").value != "") 
+	   {
+	   n = n + 1;
+       }
+	   if (n == 3)
+	   {
+       document.getElementById("Добавить").disabled = false;
+	   }	     
+   }
+   function changeFunc3($i) 
+   {
+	   n = n + 1;
+	   if (n == 3)
+	   {
+       document.getElementById("Добавить").disabled = false;
+	   }	     
+   }
+  </script>
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Добавление задания</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %}
+			{{ form.as_p }}
+				<p><input type="text" name="task_id" placeholder="Номер задания" value="{{ form.task_id }}" autocomplete="off"></p>
+				<p><input type="text" name="deadline" placeholder="Срок сдачи" value="{{ form.deadline }}" autocomplete="off"></p>
+				<p><input type="file" id="text" name="text" onchange="changeFunc2(value)"></p>
+				<select name="group_id" onchange="changeFunc(value)"> 
+				<option value="Выберите номер группы" disabled="true" selected>Выберите номер группы</option>
+				{% for group in group %}
+				<option>{{ group.Group_ID }}</option>
+				{% if group == current_group %}selected="selected"{% endif %}>
+				{{group.Group_ID|capfirst}}
+				</option>
+				{% endfor %}></select>
+				<p><select name="subject_id" onchange="changeFunc3(value)"> 
+				<option value="Выберите название преподаваемой дисцплины" disabled="true" selected>Выберите номер преподаваемой дисциплины</option>
+				{% for subject in subject %}
+				<option>{{ subject.Subject2_ID}}</option>
+				{% if subject == current_subject %}selected="selected"{% endif %}>
+				{{subject.Subject2_ID|capfirst}}
+				</option>
+				{% endfor %}></select></p>
+				<p><input type="submit" id="Добавить" value="Добавить" disabled="true"></p>
+				{{ form.errors }}			
+			</form>
+	</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<script>
+	var n = 0;
+   function changeFunc($i) 
+   {   
+	   n = n + 1;
+	   if (n == 2)
+	   {
+       document.getElementById("Выдать").disabled = false;
+	   }
+   }
+   function changeFunc2($i) 
+   {
+	   n = n + 1;
+	   if (n == 2)
+	   {
+       document.getElementById("Выдать").disabled = false;
+	   }	     
+   }
+  </script>
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Выдача оценки за сдачу задания</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<form method="POST">{% csrf_token %}
+				<p><select name="taskgive_id" onchange="changeFunc(value)"> 
+				<option value="Выберите номер сдачи задания" disabled="true" selected>Выберите номер сдачи задания</option>
+				{% for taskgive in taskgive %}
+				<option>{{ taskgive.GiveTask_ID }}</option>
+				{% if taskgive == current_taskgive %}selected="selected"{% endif %}>
+				{{givetask.GiveTask_ID|capfirst}}
+				</option>
+				{% endfor %}></select></p>
+				<p><select name="mark_id" onchange="changeFunc2(value)"> 
+				<option value="Выберите оценку" disabled="true" selected>Выберите оценку</option>
+				{% for mark in mark %}
+				<option>{{ mark.Mark_Text }}</option>
+				{% if mark == current_mark %}selected="selected"{% endif %}>
+				{{mark.Mark_Text|capfirst}}
+				</option>
+				{% endfor %}></select></p>				
+				<p><input type="submit" id="Выдать" value="Выдать" disabled="true"></p>
+				{{ form.errors }}			
+			</form>
+	</body>
+</html>
