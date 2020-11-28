@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<script>
+   function changeFunc($i) 
+   {
+       document.getElementById("Изменить").disabled = false;
+   }
+  </script>
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Изменить вид баллов</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<form method="POST">{% csrf_token %}
+				<p><select name="presenttype_name" onchange="changeFunc(value)"> 
+				<option value="Выберите вид баллов" disabled="true" selected>Выберите вид баллов</option>
+				{% for presenttype in presenttype %}
+				<option>{{ presenttype.Present_Type_Name }}</option>
+				{% if presenttype == current_presenttype %}selected="selected"{% endif %}>
+				{{presenttype.Present_Type_Name|capfirst}}
+				</option>
+				{% endfor %}></select></p>			
+				<p><input type="text" name="presenttype_name2" placeholder="Новый текст оценки" value="{{ form.presenttype_name2 }}" autocomplete="off"></p>
+				<p><input type="submit" id="Изменить" value="Изменить" disabled="true"></p>
+				{{ form.errors }}			
+			</form>
+	</body>
+</html>

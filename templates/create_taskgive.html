@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<script>
+	var n = 0;
+   function changeFunc($i) 
+   {   
+	   n = n + 1;
+	   if (n == 2)
+	   {
+       document.getElementById("Добавить").disabled = false;
+	   }
+   }
+   function changeFunc2($i) 
+   {
+	   if(document.getElementById("textgive").value != "") 
+	   {
+	   n = n + 1;
+       }
+	   if (n == 2)
+	   {
+       document.getElementById("Добавить").disabled = false;
+	   }	     
+   }
+  </script>
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Добавление сдачи задания</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %}
+			{{ form.as_p }}
+				<p><input type="text" name="taskgive_id" placeholder="Номер сдачи задания" value="{{ form.taskgive_id }}" autocomplete="off"></p>
+				<p><input type="file" id="textgive" name="textgive" onchange="changeFunc2(value)"></p>
+				<select name="task_id" onchange="changeFunc(value)"> 
+				<option value="Выберите номер задания" disabled="true" selected>Выберите номер задания</option>
+				{% for task in task %}
+				<option>{{ task.Task_ID }}</option>
+				{% if task == current_task %}selected="selected"{% endif %}>
+				{{task.Task_ID|capfirst}}
+				</option>
+				{% endfor %}></select>
+				<p><input type="submit" id="Добавить" value="Добавить" disabled="true"></p>
+				{{ form.errors }}			
+			</form>
+	</body>
+</html>

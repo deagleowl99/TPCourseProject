@@ -1,4 +1,4 @@
-from .models import UserU, User_Type, Faculty, Department, Branch, Year, Mark, Group, Subject, SubjectDuringYear
+from .models import UserU, User_Type, Faculty, Department, Branch, Year, Mark, Present_Type, Group, Subject, SubjectDuringYear, Task, Present, TaskGive
 from django.shortcuts import render
 from django.http import Http404
 from django.shortcuts import redirect
@@ -7,9 +7,14 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.contrib.auth import logout
 from django.urls import reverse
-
+from django.conf import settings
+from django.db import IntegrityError
+from django.core.exceptions import ValidationError
+from django.core.files.storage import FileSystemStorage
+from django.utils import timezone
+from datetime import datetime
+import os
 def create_user(request):
-    usertype=User_Type.objects.all()
     if request.method == "POST":
         form = {
 			'surname': request.POST["surname"],
@@ -17,12 +22,7 @@ def create_user(request):
 			'fathername': request.POST["fathername"],
             'login': request.POST["login"],
             'mail': request.POST["mail"],
-            'password': request.POST["password"],
-			'start_date': request.POST["start_date"],
-			'startwork_date': request.POST["startwork_date"],
-			'group_id': request.POST["group_id"],
-			'department_id': request.POST["department_id"],
-			'faculty_id': request.POST["faculty_id"],			
+            'password': request.POST["password"],			
         }
         if form["surname"] and form["name"] and form["fathername"] and form["login"] and form["mail"] and form["password"]:
             try:
@@ -30,17 +30,26 @@ def create_user(request):
                 form['errors'] = u"Не уникальное имя пользователя!"
                 return render(request, 'create_user.html', {'form': form})
             except UserU.DoesNotExist:
-                user=UserU.objects.create_user(form["login"], form["mail"], form["password"])
-                user.Surname=form["surname"] 
-                user.Name=form["name"] 
-                user.Fathername=form["fathername"]           
-                user.save()
-                return redirect('sammtuci')
+                try:
+                    UserU.objects.get(email = form["mail"])
+                    form['errors'] = u"Не уникальная почта!"
+                    return render(request, 'create_user.html', {'form': form})
+                except UserU.DoesNotExist:
+                    if  not "@" in form["mail"] or not "." in form["mail"] or form["mail"].find("@") > form["mail"].rfind("."):
+                        form['errors'] = u"Почта введена не правильно!"
+                        return render(request, 'create_user.html', {'form': form})
+                    else:
+                        user=UserU.objects.create_user(form["login"], form["mail"], form["password"])
+                        user.Surname=form["surname"] 
+                        user.Name=form["name"] 
+                        user.Fathername=form["fathername"]           
+                        user.save()
+                        return redirect('sammtuci')
         else:
             form['errors'] = u"У вас имеются пустые поля!"
-            return render(request, 'create_user.html', {"usertype": usertype, "form": form})
+            return render(request, 'create_user.html', {"form": form})
     else:
-        return render(request, 'create_user.html', {"usertype": usertype})
+        return render(request, 'create_user.html', {})
 		
 def login_user(request):
     if request.method == "POST":
@@ -66,8 +75,7 @@ def logout_user(request):
 	return HttpResponseRedirect(reverse('sammtuci'))
 	
 def sammtuci(request):
-    branch=Branch.objects.all().order_by("Branch_ID")
-    return render(request, 'sammtuci.html', {"branch": branch})
+    return render(request, 'sammtuci.html', {})
 
 def create_branch(request):
     if request.method == "POST":
@@ -109,7 +117,7 @@ def update_branch(request):
             try:
                 Branch.objects.get(Branch_Name = form["branch_name2"])
                 form['errors'] = u"Придумайте другое название направления!"
-                return render(request, 'update_branch', {"branch": branch})
+                return render(request, 'update_branch.html', {"branch": branch, "form": form})
             except Branch.DoesNotExist:
                 if request.POST.get("branch_name"):
                     savebranchname=Branch()
@@ -143,19 +151,28 @@ def create_faculty(request):
 			    'faculty_id': request.POST["faculty_id"],
                 'faculty_name': request.POST["faculty_name"],			
         }
-        if form["faculty_id"] and form["faculty_name"]:		
-            try:
-                Faculty.objects.get(Faculty_ID = form["faculty_id"])
-                form['errors'] = u"Этот факультет уже существует! Проверьте поле номера!"
+        if form["faculty_id"] and form["faculty_name"]:
+            if not form["faculty_id"].isdigit():
+                form['errors'] = u"Поле номера должно содержать только цифры!"
                 return render(request, 'create_faculty.html', {'form': form})
-            except Faculty.DoesNotExist:
+            else:
                 try:
-                    Faculty.objects.get(Faculty_Name = form["faculty_name"])
-                    form['errors'] = u"Этот факультет уже существует! Проверьте поле названия!"
+                    faculty = Faculty.objects.filter(Faculty_ID=request.POST.get(int("faculty_id")))
+                    form['errors'] = u"Поле номера содержит только цифры!!"
                     return render(request, 'create_faculty.html', {'form': form})
-                except Faculty.DoesNotExist:
-                    faculty=Faculty.objects.create(Faculty_ID=form["faculty_id"], Faculty_Name=form["faculty_name"])
-                    return redirect('sammtuci')          
+                except ValueError:
+                    try:
+                        Faculty.objects.get(Faculty_ID = form["faculty_id"])
+                        form['errors'] = u"Этот факультет уже существует! Проверьте поле номера!"
+                        return render(request, 'create_faculty.html', {'form': form})
+                    except Faculty.DoesNotExist:
+                        try:
+                            Faculty.objects.get(Faculty_Name = form["faculty_name"])
+                            form['errors'] = u"Этот факультет уже существует! Проверьте поле названия!"
+                            return render(request, 'create_faculty.html', {'form': form})
+                        except Faculty.DoesNotExist:
+                            faculty=Faculty.objects.create(Faculty_ID=form["faculty_id"], Faculty_Name=form["faculty_name"])
+                            return redirect('sammtuci')          
         else:
             form['errors'] = u"У вас имеются пустые поля!"
             return render(request, 'create_faculty.html', {"form": form})
@@ -177,13 +194,13 @@ def update_faculty(request):
             try:
                 Faculty.objects.get(Faculty_Name = form["faculty_name2"])
                 form['errors'] = u"Придумайте другое название факультета!"
-                return render(request, 'update_faculty', {"faculty": faculty})
+                return render(request, 'update_faculty.html', {"faculty": faculty, "form": form})
             except Faculty.DoesNotExist:
                 if request.POST.get("faculty_name"):
                     savefacultyname=Faculty()
                     savefacultyname.Faculty_Name=request.POST.get("faculty_name")
-                faculty2=Faculty.objects.all().filter(Faculty_Name=savefacultyname).update(Faculty_Name=form["faculty_name2"])
-                return redirect('sammtuci')          
+                    faculty2=Faculty.objects.all().filter(Faculty_Name=savefacultyname).update(Faculty_Name=form["faculty_name2"])
+                    return redirect('sammtuci')          
         else:
             form['errors'] = u"У вас имеются пустые поля!"
             return render(request, 'update_faculty.html', {"faculty": faculty, "form": form})
@@ -214,24 +231,28 @@ def create_department(request):
 				'faculty_name': request.POST["faculty_name"]
         }
         if form["department_id"] and form["department_name"]:
-            try:
-                Department.objects.get(Department_ID = form["department_id"])
-                form['errors'] = u"Эта кафедра уже существует! Проверьте поле номера!"
+            if not form["department_id"].isdigit():
+                form['errors'] = u"Поле номера должно содержать только цифры!"
                 return render(request, 'create_department.html', {"faculty": faculty, 'form': form})
-            except Department.DoesNotExist:
+            else:
                 try:
-                    Department.objects.get(Department_Name = form["department_name"])
-                    form['errors'] = u"Эта кафедра уже существует! Проверьте поле названия!"
+                    Department.objects.get(Department_ID = form["department_id"])
+                    form['errors'] = u"Эта кафедра уже существует! Проверьте поле номера!"
                     return render(request, 'create_department.html', {"faculty": faculty, 'form': form})
                 except Department.DoesNotExist:
-                    department=Department.objects.create(Department_ID=form["department_id"], Department_Name=form["department_name"])
-                    if request.POST.get("faculty_name"):
-                        savefacultyname=Faculty()
-                        savefacultyname.Faculty_Name=request.POST.get("faculty_name")
-                    faculty_id=Faculty.objects.get(Faculty_Name=savefacultyname)
-                    department.Faculty_ID=faculty_id
-                    department.save()
-                    return redirect('sammtuci')           
+                    try:
+                        Department.objects.get(Department_Name = form["department_name"])
+                        form['errors'] = u"Эта кафедра уже существует! Проверьте поле названия!"
+                        return render(request, 'create_department.html', {"faculty": faculty, 'form': form})
+                    except Department.DoesNotExist:
+                        department=Department.objects.create(Department_ID=form["department_id"], Department_Name=form["department_name"])
+                        if request.POST.get("faculty_name"):
+                            savefacultyname=Faculty()
+                            savefacultyname.Faculty_Name=request.POST.get("faculty_name")
+                        faculty_id=Faculty.objects.get(Faculty_Name=savefacultyname)
+                        department.Faculty_ID=faculty_id
+                        department.save()
+                        return redirect('sammtuci')           
         else:
             form['errors'] = u"У вас имеются пустые поля!"
             return render(request, 'create_department.html', {"faculty": faculty, "form": form})
@@ -255,7 +276,7 @@ def update_department(request):
             try:
                 Department.objects.get(Department_Name = form["department_name2"])
                 form['errors'] = u"Придумайте другое название кафедры!"
-                return render(request, 'update_department', {"faculty": faculty, "department": department})
+                return render(request, 'update_department.html', {"faculty": faculty, "department": department, "form": form})
             except Department.DoesNotExist:
                 if request.POST.get("department_name"):
                     savedepartmentname=Department()
@@ -293,19 +314,23 @@ def create_usertype(request):
 			    'usertype_id': request.POST["usertype_id"],
                 'usertype_name': request.POST["usertype_name"],			
         }
-        if form["usertype_id"] and form["usertype_name"]:		
-            try:
-                User_Type.objects.get(User_Type = form["usertype_id"])
-                form['errors'] = u"Этот тип пользователя уже существует! Проверьте поле номера!"
+        if form["usertype_id"] and form["usertype_name"]:
+            if not form["usertype_id"].isdigit():
+                form['errors'] = u"Поле номера должно содержать только цифры!"
                 return render(request, 'create_usertype.html', {'form': form})
-            except User_Type.DoesNotExist:
+            else:		
                 try:
-                    User_Type.objects.get(User_Type_Name = form["usertype_name"])
-                    form['errors'] = u"Этоn тип пользователя уже существует! Проверьте поле названия!"
+                    User_Type.objects.get(User_Type = form["usertype_id"])
+                    form['errors'] = u"Этот тип пользователя уже существует! Проверьте поле номера!"
                     return render(request, 'create_usertype.html', {'form': form})
                 except User_Type.DoesNotExist:
-                    usertype=User_Type.objects.create(User_Type=form["usertype_id"], User_Type_Name=form["usertype_name"])
-                    return redirect('sammtuci')          
+                    try:
+                        User_Type.objects.get(User_Type_Name = form["usertype_name"])
+                        form['errors'] = u"Этоn тип пользователя уже существует! Проверьте поле названия!"
+                        return render(request, 'create_usertype.html', {'form': form})
+                    except User_Type.DoesNotExist:
+                        usertype=User_Type.objects.create(User_Type=form["usertype_id"], User_Type_Name=form["usertype_name"])
+                        return redirect('sammtuci')          
         else:
             form['errors'] = u"У вас имеются пустые поля!"
             return render(request, 'create_usertype.html', {"form": form})
@@ -327,7 +352,7 @@ def update_usertype(request):
             try:
                 User_Type.objects.get(User_Type_Name = form["usertype_name2"])
                 form['errors'] = u"Придумайте другое название типа пользователя!"
-                return render(request, 'update_usertype', {"usertype": usertype})
+                return render(request, 'update_usertype.html', {"usertype": usertype, "form": form})
             except User_Type.DoesNotExist:
                 if request.POST.get("usertype_name"):
                     saveusertypename=User_Type()
@@ -370,27 +395,42 @@ def create_deaneryuser(request):
         }
         if form["surname"] and form["name"] and form["fathername"] and form["login"] and form["mail"] and form["password"] and form["startwork_date"]:
             try:
-                UserU.objects.get(username = form["login"])
-                form['errors'] = u"Не уникальное имя пользователя!"
+                datetime.strptime(form["startwork_date"], '%Y-%m-%d')                   
+            except ValueError:
+                form['errors'] = u"Неправильно введена дата!"
                 return render(request, 'create_deaneryuser.html', {"faculty": faculty, 'form': form})
-            except UserU.DoesNotExist:
-                user=UserU.objects.create_user(form["login"], form["mail"], form["password"])
-                user.Surname=form["surname"] 
-                user.Name=form["name"] 
-                user.Fathername=form["fathername"]
-                user.StarkWork_Date=form["startwork_date"]  
-                user.set_password(form["password"])
-                if request.POST.get("faculty_name"):
-                    savefacultyname=Faculty()
-                    savefacultyname.Faculty_Name=request.POST.get("faculty_name")
-                faculty_id=Faculty.objects.get(Faculty_Name=savefacultyname)
-                user.Faculty_ID=faculty_id
-                saveusertype=User_Type()
-                saveusertype.User_Type=1
-                user_type=User_Type.objects.get(User_Type=saveusertype.User_Type)
-                user.User_Type=user_type
-                user.save()
-                return redirect('sammtuci')
+            else:
+                try:
+                    UserU.objects.get(username = form["login"])
+                    form['errors'] = u"Не уникальное имя пользователя!"
+                    return render(request, 'create_deaneryuser.html', {"faculty": faculty, 'form': form})
+                except UserU.DoesNotExist:
+                    try:
+                        UserU.objects.get(email = form["mail"])
+                        form['errors'] = u"Не уникальная почта!"
+                        return render(request, 'create_deaneryuser.html', {"faculty": faculty, 'form': form})
+                    except UserU.DoesNotExist:
+                        if  not "@" in form["mail"] or not "." in form["mail"] or form["mail"].find("@") > form["mail"].rfind("."):
+                            form['errors'] = u"Почта введена не правильно!"
+                            return render(request, 'create_deaneryuser.html', {"faculty": faculty, 'form': form})
+                        else:
+                            user=UserU.objects.create_user(form["login"], form["mail"], form["password"])
+                            user.Surname=form["surname"] 
+                            user.Name=form["name"] 
+                            user.Fathername=form["fathername"]
+                            user.StartWork_Date=form["startwork_date"]  
+                            user.set_password(form["password"])
+                            if request.POST.get("faculty_name"):
+                                savefacultyname=Faculty()
+                                savefacultyname.Faculty_Name=request.POST.get("faculty_name")
+                            faculty_id=Faculty.objects.get(Faculty_Name=savefacultyname)
+                            user.Faculty_ID=faculty_id
+                            saveusertype=User_Type()
+                            saveusertype.User_Type=1
+                            user_type=User_Type.objects.get(User_Type=saveusertype.User_Type)
+                            user.User_Type=user_type
+                            user.save()
+                            return redirect('sammtuci')
         else:
             form['errors'] = u"У вас имеются пустые поля!"
             return render(request, 'create_deaneryuser.html', {"faculty": faculty, "form": form})
@@ -421,17 +461,32 @@ def update_deaneryuser(request):
                 form['errors'] = u"Не уникальное имя пользователя!"
                 return render(request, 'update_deaneryuser.html', {"deaneryuser": deaneryuser, "faculty": faculty, 'form': form})
             except UserU.DoesNotExist:
-                if request.POST.get("deaneryuser_id"):
-                    savedeaneryuserid=UserU()
-                    savedeaneryuserid.id=request.POST.get("deaneryuser_id")
-                if request.POST.get("faculty_name"):
-                    savefacultyname=Faculty()
-                    savefacultyname.Faculty_Name=request.POST.get("faculty_name")	               
-                faculty_id=Faculty.objects.get(Faculty_Name=savefacultyname)
-                deaneryuser=UserU.objects.all().filter(id=savedeaneryuserid.id).update(Surname=form["surname"], 
-				Name=form["name"], Fathername=form["fathername"], username=form["login"], 
-				StartWork_Date=form["startwork_date"], Faculty_ID=faculty_id.Faculty_ID)
-                return redirect('sammtuci')
+                try:
+                    UserU.objects.get(email = form["mail"])
+                    form['errors'] = u"Не уникальная почта!"
+                    return render(request, 'update_deaneryuser.html', {"deaneryuser": deaneryuser, "faculty": faculty, 'form': form})
+                except UserU.DoesNotExist:
+                    try:
+                        datetime.strptime(form["startwork_date"], '%Y-%m-%d')                   
+                    except ValueError:
+                        form['errors'] = u"Неправильно введена дата!"
+                        return render(request, 'update_deaneryuser.html', {"deaneryuser": deaneryuser, "faculty": faculty, 'form': form})
+                    else:
+                        if  not "@" in form["mail"] or not "." in form["mail"] or form["mail"].find("@") > form["mail"].rfind("."):
+                            form['errors'] = u"Почта введена не правильно!"
+                            return render(request, 'update_deaneryuser.html', {"deaneryuser": deaneryuser, "faculty": faculty, 'form': form})
+                        else:
+                            if request.POST.get("deaneryuser_id"):
+                                savedeaneryuserid=UserU()
+                                savedeaneryuserid.id=request.POST.get("deaneryuser_id")
+                            if request.POST.get("faculty_name"):
+                                savefacultyname=Faculty()
+                                savefacultyname.Faculty_Name=request.POST.get("faculty_name")	               
+                            faculty_id=Faculty.objects.get(Faculty_Name=savefacultyname)
+                            deaneryuser=UserU.objects.all().filter(id=savedeaneryuserid.id).update(Surname=form["surname"], 
+				            Name=form["name"], Fathername=form["fathername"], username=form["login"], 
+				            StartWork_Date=form["startwork_date"], Faculty_ID=faculty_id.Faculty_ID)
+                            return redirect('sammtuci')
         else:
             form['errors'] = u"У вас имеются пустые поля!"
             return render(request, 'update_deaneryuser.html', {"deaneryuser": deaneryuser, "faculty": faculty, "form": form})			
@@ -458,19 +513,23 @@ def create_mark(request):
 			    'mark_id': request.POST["mark_id"],
                 'mark_text': request.POST["mark_text"],			
         }
-        if form["mark_id"] and form["mark_text"]:		
-            try:
-                Mark.objects.get(Mark = form["mark_id"])
-                form['errors'] = u"Эта оценка уже существует! Проверьте поле кода!"
+        if form["mark_id"] and form["mark_text"]:
+            if not form["mark_id"].isdigit():
+                form['errors'] = u"Поле кода должно содержать только цифры!"
                 return render(request, 'create_mark.html', {'form': form})
-            except Mark.DoesNotExist:
+            else:		
                 try:
-                    Mark.objects.get(Mark_Text = form["mark_text"])
-                    form['errors'] = u"Эта оценка уже существует! Проверьте поле текста!"
+                    Mark.objects.get(Mark = form["mark_id"])
+                    form['errors'] = u"Эта оценка уже существует! Проверьте поле кода!"
                     return render(request, 'create_mark.html', {'form': form})
                 except Mark.DoesNotExist:
-                    mark=Mark.objects.create(Mark=form["mark_id"], Mark_Text=form["mark_text"])
-                    return redirect('sammtuci')          
+                    try:
+                        Mark.objects.get(Mark_Text = form["mark_text"])
+                        form['errors'] = u"Эта оценка уже существует! Проверьте поле текста!"
+                        return render(request, 'create_mark.html', {'form': form})
+                    except Mark.DoesNotExist:
+                        mark=Mark.objects.create(Mark=form["mark_id"], Mark_Text=form["mark_text"])
+                        return redirect('sammtuci')          
         else:
             form['errors'] = u"У вас имеются пустые поля!"
             return render(request, 'create_mark.html', {"form": form})
@@ -492,7 +551,7 @@ def update_mark(request):
             try:
                 Mark.objects.get(Mark_Text = form["mark_text2"])
                 form['errors'] = u"Придумайте другой текст для оценки!"
-                return render(request, 'update_mark', {"mark": mark})
+                return render(request, 'update_mark.html', {"mark": mark, "form": form})
             except Mark.DoesNotExist:
                 if request.POST.get("mark_text"):
                     savemarktext=Mark()
@@ -526,19 +585,23 @@ def create_year(request):
 			    'year_id': request.POST["year_id"],
                 'year_name': request.POST["year_name"],			
         }
-        if form["year_id"] and form["year_name"]:		
-            try:
-                Year.objects.get(Year_ID = form["year_id"])
-                form['errors'] = u"Этот тип пользователя уже существует! Проверьте поле номера!"
+        if form["year_id"] and form["year_name"]:
+            if not form["year_id"].isdigit():
+                form['errors'] = u"Поле номера должно содержать только цифры!"
                 return render(request, 'create_year.html', {'form': form})
-            except Year.DoesNotExist:
+            else:		
                 try:
-                    Year.objects.get(Year_Name = form["year_name"])
-                    form['errors'] = u"Этоn тип пользователя уже существует! Проверьте поле названия!"
+                    Year.objects.get(Year_ID = form["year_id"])
+                    form['errors'] = u"Этот тип пользователя уже существует! Проверьте поле номера!"
                     return render(request, 'create_year.html', {'form': form})
                 except Year.DoesNotExist:
-                    year=Year.objects.create(Year_ID=form["year_id"], Year_Name=form["year_name"])
-                    return redirect('sammtuci')          
+                    try:
+                        Year.objects.get(Year_Name = form["year_name"])
+                        form['errors'] = u"Этоn тип пользователя уже существует! Проверьте поле названия!"
+                        return render(request, 'create_year.html', {'form': form})
+                    except Year.DoesNotExist:
+                        year=Year.objects.create(Year_ID=form["year_id"], Year_Name=form["year_name"])
+                        return redirect('sammtuci')          
         else:
             form['errors'] = u"У вас имеются пустые поля!"
             return render(request, 'create_year.html', {"form": form})
@@ -559,8 +622,8 @@ def update_year(request):
         if form["year_name2"]:
             try:
                 Year.objects.get(Year_Name = form["year_name2"])
-                form['errors'] = u"Придумайте другое название типа пользователя!"
-                return render(request, 'update_year', {"year": year})
+                form['errors'] = u"Придумайте другое название для учебного года!"
+                return render(request, 'update_year.html', {"year": year, "form": form})
             except Year.DoesNotExist:
                 if request.POST.get("year_name"):
                     saveyearname=Year()
@@ -587,6 +650,78 @@ def delete_year(request):
     else:
         return render(request, 'delete_year.html', {"year": year})
     return render(request, 'delete_year.html', {"year": year})
+	
+def create_presenttype(request):
+    if request.method == "POST":
+        form = {
+			    'presenttype_id': request.POST["presenttype_id"],
+                'presenttype_name': request.POST["presenttype_name"],			
+        }
+        if form["presenttype_id"] and form["presenttype_name"]:
+            if not form["presenttype_id"].isdigit():
+                form['errors'] = u"Поле номера должно содержать только цифры!"
+                return render(request, 'create_presenttype.html', {'form': form})
+            else:		
+                try:
+                    Present_Type.objects.get(Present_Type_ID = form["presenttype_id"])
+                    form['errors'] = u"Этот вид баллов уже существует! Проверьте поле номера!"
+                    return render(request, 'create_presenttype.html', {'form': form})
+                except Present_Type.DoesNotExist:
+                    try:
+                        Present_Type.objects.get(Present_Type_Name = form["presenttype_name"])
+                        form['errors'] = u"Этот вид баллов уже существует! Проверьте поле названия!"
+                        return render(request, 'create_presenttype.html', {'form': form})
+                    except Present_Type.DoesNotExist:
+                        presenttype=Present_Type.objects.create(Present_Type_ID=form["presenttype_id"], Present_Type_Name=form["presenttype_name"])
+                        return redirect('sammtuci')          
+        else:
+            form['errors'] = u"У вас имеются пустые поля!"
+            return render(request, 'create_presenttype.html', {"form": form})
+    else:
+        return render(request, 'create_presenttype.html', {})
+
+def read_presenttype(request):
+    presenttype=Present_Type.objects.all()
+    return render(request, 'read_presenttype.html', {"presenttype": presenttype})
+	
+def update_presenttype(request):
+    presenttype=Present_Type.objects.all()
+    if request.method == "POST":
+        form = {
+			    'presenttype_name': request.POST["presenttype_name"],
+                'presenttype_name2': request.POST["presenttype_name2"],			
+        }
+        if form["presenttype_name2"]:
+            try:
+                Present_Type.objects.get(Present_Type_Name = form["presenttype_name2"])
+                form['errors'] = u"Придумайте другое название вида баллов!"
+                return render(request, 'update_presenttype.html', {"presenttype": presenttype, "form": form})
+            except Present_Type.DoesNotExist:
+                if request.POST.get("presenttype_name"):
+                    savepresenttypename=Present_Type()
+                    savepresenttypename.Present_Type_Name=request.POST.get("presenttype_name")
+                presenttype2=Present_Type.objects.all().filter(Present_Type_Name=savepresenttypename).update(Present_Type_Name=form["presenttype_name2"])
+                return redirect('sammtuci')          
+        else:
+            form['errors'] = u"У вас имеются пустые поля!"
+            return render(request, 'update_presenttype.html', {"presenttype": presenttype, "form": form})
+    else:
+        return render(request, 'update_presenttype.html', {"presenttype": presenttype})
+
+def delete_presenttype(request):
+    presenttype=Present_Type.objects.all()
+    if request.method == "POST":
+        form = {
+                'presenttype_name': request.POST["presenttype_name"],			
+        }
+        if request.POST.get("presenttype_name"):
+            savepresenttypename=Present_Type()
+            savepresenttypename.Present_Type_Name=request.POST.get("presenttype_name")
+        presenttype2=Present_Type.objects.filter(Present_Type_Name=savepresenttypename).delete()
+        return redirect('sammtuci')
+    else:
+        return render(request, 'delete_presenttype.html', {"presenttype": presenttype})
+    return render(request, 'delete_presenttype.html', {"presenttype": presenttype})
 	
 def create_group(request):
     year=Year.objects.all().order_by("Year_ID")
@@ -684,24 +819,39 @@ def create_teacher(request):
             try:
                 UserU.objects.get(username = form["login"])
                 form['errors'] = u"Не уникальное имя пользователя!"
-                return render(request, 'create_deaneryuser.html', {"faculty": faculty, 'form': form})
+                return render(request, 'create_teacher.html', {"department": department, 'form': form})
             except UserU.DoesNotExist:
-                user=UserU.objects.create_user(form["login"], form["mail"], form["password"])
-                user.Surname=form["surname"] 
-                user.Name=form["name"] 
-                user.Fathername=form["fathername"]
-                user.StarkWork_Date=form["startwork_date"]                
-                if request.POST.get("department_name"):
-                    savedepartmentname=Department()
-                    savedepartmentname.Department_Name=request.POST.get("department_name")
-                department_id=Department.objects.get(Department_Name=savedepartmentname)
-                user.Department_ID=department_id
-                saveusertype=User_Type()
-                saveusertype.User_Type=2
-                user_type=User_Type.objects.get(User_Type=saveusertype.User_Type)
-                user.User_Type=user_type
-                user.save()
-                return redirect('sammtuci')
+                try:
+                    UserU.objects.get(email = form["mail"])
+                    form['errors'] = u"Не уникальная почта!"
+                    return render(request, 'create_teacher.html', {"department": department, 'form': form})
+                except UserU.DoesNotExist:
+                    try:
+                        datetime.strptime(form["startwork_date"], '%Y-%m-%d')                   
+                    except ValueError:
+                        form['errors'] = u"Неправильно введена дата!"
+                        return render(request, 'create_teacher.html', {"department": department, 'form': form})
+                    else:
+                        if  not "@" in form["mail"] or not "." in form["mail"] or form["mail"].find("@") > form["mail"].rfind("."):
+                            form['errors'] = u"Почта введена не правильно!"
+                            return render(request, 'create_teacher.html', {"department": department, 'form': form})
+                        else:					
+                            user=UserU.objects.create_user(form["login"], form["mail"], form["password"])
+                            user.Surname=form["surname"] 
+                            user.Name=form["name"] 
+                            user.Fathername=form["fathername"]
+                            user.StartWork_Date=form["startwork_date"]              
+                            if request.POST.get("department_name"):
+                                savedepartmentname=Department()
+                                savedepartmentname.Department_Name=request.POST.get("department_name")
+                            department_id=Department.objects.get(Department_Name=savedepartmentname)
+                            user.Department_ID=department_id
+                            saveusertype=User_Type()
+                            saveusertype.User_Type=2
+                            user_type=User_Type.objects.get(User_Type=saveusertype.User_Type)
+                            user.User_Type=user_type
+                            user.save()
+                            return redirect('sammtuci')
         else:
             form['errors'] = u"У вас имеются пустые поля!"
             return render(request, 'create_teacher.html', {"department": department, "form": form})
@@ -732,17 +882,32 @@ def update_teacher(request):
                 form['errors'] = u"Не уникальное имя пользователя!"
                 return render(request, 'update_teacher.html', {"teacher": teacher, "department": department, 'form': form})
             except UserU.DoesNotExist:
-                if request.POST.get("teacher_id"):
-                    saveteacherid=UserU()
-                    saveteacherid.id=request.POST.get("teacher_id")
-                if request.POST.get("department_name"):
-                    savedepartmentname=Department()
-                    savedepartmentname.Department_Name=request.POST.get("department_name")	               
-                department_id=Department.objects.get(Department_Name=savedepartmentname)
-                teacher=UserU.objects.all().filter(id=saveteacherid.id).update(Surname=form["surname"], 
-				Name=form["name"], Fathername=form["fathername"], username=form["login"], 
-				StartWork_Date=form["startwork_date"], Department_ID=department_id.Department_ID)
-                return redirect('sammtuci')
+                try:
+                    UserU.objects.get(email = form["mail"])
+                    form['errors'] = u"Не уникальная почта!"
+                    return render(request, 'update_teacher.html', {"teacher": teacher, "department": department, 'form': form})
+                except UserU.DoesNotExist:
+                    try:
+                        datetime.strptime(form["startwork_date"], '%Y-%m-%d')                   
+                    except ValueError:
+                        form['errors'] = u"Неправильно введена дата!"
+                        return render(request, 'update_teacher.html', {"teacher": teacher, "department": department, 'form': form})
+                    else:
+                        if  not "@" in form["mail"] or not "." in form["mail"] or form["mail"].find("@") > form["mail"].rfind("."):
+                            form['errors'] = u"Почта введена не правильно!"
+                            return render(request, 'update_teacher.html', {"teacher": teacher, "department": department, 'form': form})
+                        else:
+                            if request.POST.get("teacher_id"):
+                                saveteacherid=UserU()
+                                saveteacherid.id=request.POST.get("teacher_id")
+                            if request.POST.get("department_name"):
+                                savedepartmentname=Department()
+                                savedepartmentname.Department_Name=request.POST.get("department_name")	               
+                            department_id=Department.objects.get(Department_Name=savedepartmentname)
+                            teacher=UserU.objects.all().filter(id=saveteacherid.id).update(Surname=form["surname"], 
+				            Name=form["name"], Fathername=form["fathername"], username=form["login"], 
+				            StartWork_Date=form["startwork_date"], Department_ID=department_id.Department_ID)
+                            return redirect('sammtuci')
         else:
             form['errors'] = u"У вас имеются пустые поля!"
             return render(request, 'update_teacher.html', {"teacher": teacher, "department": department, "form": form})			
@@ -783,23 +948,38 @@ def create_student(request):
                 form['errors'] = u"Не уникальное имя пользователя!"
                 return render(request, 'create_student.html', {"group": group, 'form': form})
             except UserU.DoesNotExist:
-                user=UserU.objects.create_user(form["login"], form["mail"], form["password"])
-                user.Surname=form["surname"] 
-                user.Name=form["name"] 
-                user.Fathername=form["fathername"]
-                user.Stark_Date=form["start_date"]     
-                user.Points=form["points"]				
-                if request.POST.get("group_name"):
-                    savegroupname=Group()
-                    savegroupname.Group_ID=request.POST.get("group_name")
-                group_id=Group.objects.get(Group_ID=savegroupname)
-                user.Group_ID=group_id
-                saveusertype=User_Type()
-                saveusertype.User_Type=3
-                user_type=User_Type.objects.get(User_Type=saveusertype.User_Type)
-                user.User_Type=user_type
-                user.save()
-                return redirect('sammtuci')
+                try:
+                    UserU.objects.get(email = form["mail"])
+                    form['errors'] = u"Не уникальная почта!"
+                    return render(request, 'create_student.html', {"group": group, 'form': form})
+                except UserU.DoesNotExist:
+                    try:
+                        datetime.strptime(form["start_date"], '%Y-%m-%d')                   
+                    except ValueError:
+                        form['errors'] = u"Неправильно введена дата!"
+                        return render(request, 'create_student.html', {"group": group, 'form': form})
+                    else:
+                        if  not "@" in form["mail"] or not "." in form["mail"] or form["mail"].find("@") > form["mail"].rfind("."):
+                            form['errors'] = u"Почта введена не правильно!"
+                            return render(request, 'create_student.html', {"group": group, 'form': form})
+                        else:
+                            user=UserU.objects.create_user(form["login"], form["mail"], form["password"])
+                            user.Surname=form["surname"] 
+                            user.Name=form["name"] 
+                            user.Fathername=form["fathername"]
+                            user.Stark_Date=form["start_date"]     
+                            user.Points=form["points"]				
+                            if request.POST.get("group_name"):
+                                savegroupname=Group()
+                                savegroupname.Group_ID=request.POST.get("group_name")
+                            group_id=Group.objects.get(Group_ID=savegroupname)
+                            user.Group_ID=group_id
+                            saveusertype=User_Type()
+                            saveusertype.User_Type=3
+                            user_type=User_Type.objects.get(User_Type=saveusertype.User_Type)
+                            user.User_Type=user_type
+                            user.save()
+                            return redirect('sammtuci')
         else:
             form['errors'] = u"У вас имеются пустые поля!"
             return render(request, 'create_student.html', {"group": group, "form": form})
@@ -831,17 +1011,32 @@ def update_student(request):
                 form['errors'] = u"Не уникальное имя пользователя!"
                 return render(request, 'update_student.html', {"student": student, "group": group, 'form': form})
             except UserU.DoesNotExist:
-                if request.POST.get("student_id"):
-                    savestudentid=UserU()
-                    savestudentid.id=request.POST.get("student_id")
-                if request.POST.get("group_name"):
-                    savegroupname=Group()
-                    savegroupname.Group_ID=request.POST.get("group_name")	               
-                group_id=Group.objects.get(Group_ID=savegroupname)
-                student=UserU.objects.all().filter(id=savestudentid.id).update(Surname=form["surname"], 
-				Name=form["name"], Fathername=form["fathername"], username=form["login"], email=form["mail"],
-				Start_Date=form["start_date"], Group_ID=group_id.Group_ID, Points=form["points"])
-                return redirect('sammtuci')
+                try:
+                    UserU.objects.get(email = form["mail"])
+                    form['errors'] = u"Не уникальная почта!"
+                    return render(request, 'update_student.html', {"student": student, "group": group, 'form': form})
+                except UserU.DoesNotExist:
+                    try:
+                        datetime.strptime(form["start_date"], '%Y-%m-%d')                   
+                    except ValueError:
+                        form['errors'] = u"Неправильно введена дата!"
+                        return render(request, 'update_student.html', {"student": student, "group": group, 'form': form})
+                    else:
+                        if  not "@" in form["mail"] or not "." in form["mail"] or form["mail"].find("@") > form["mail"].rfind("."):
+                            form['errors'] = u"Почта введена не правильно!"
+                            return render(request, 'update_student.html', {"student": student, "group": group, 'form': form})
+                        else:
+                            if request.POST.get("student_id"):
+                                savestudentid=UserU()
+                                savestudentid.id=request.POST.get("student_id")
+                            if request.POST.get("group_name"):
+                                savegroupname=Group()
+                                savegroupname.Group_ID=request.POST.get("group_name")	               
+                            group_id=Group.objects.get(Group_ID=savegroupname)
+                            student=UserU.objects.all().filter(id=savestudentid.id).update(Surname=form["surname"], 
+				            Name=form["name"], Fathername=form["fathername"], username=form["login"], email=form["mail"],
+				            Start_Date=form["start_date"], Group_ID=group_id.Group_ID, Points=form["points"])
+                            return redirect('sammtuci')
         else:
             form['errors'] = u"У вас имеются пустые поля!"
             return render(request, 'update_student.html', {"student": student, "group": group, "form": form})			
@@ -871,24 +1066,28 @@ def create_subject(request):
 				'department_name': request.POST["department_name"]
         }
         if form["subject_id"] and form["subject_name"]:
-            try:
-                Subject.objects.get(Subject_ID = form["subject_id"])
-                form['errors'] = u"Эта учебная дисциплина уже существует! Проверьте поле номера!"
+            if not form["subject_id"].isdigit():
+                form['errors'] = u"Поле номера должно содержать только цифры!"
                 return render(request, 'create_subject.html', {"department": department, 'form': form})
-            except Subject.DoesNotExist:
+            else:
                 try:
-                    Subject.objects.get(Subject_Name = form["subject_name"])
-                    form['errors'] = u"Эта учебная дисциплина уже существует! Проверьте поле названия!"
+                    Subject.objects.get(Subject_ID = form["subject_id"])
+                    form['errors'] = u"Эта учебная дисциплина уже существует! Проверьте поле номера!"
                     return render(request, 'create_subject.html', {"department": department, 'form': form})
                 except Subject.DoesNotExist:
-                    subject=Subject.objects.create(Subject_ID=form["subject_id"], Subject_Name=form["subject_name"])
-                    if request.POST.get("department_name"):
-                        savedepartmentname=Department()
-                        savedepartmentname.Department_Name=request.POST.get("department_name")
-                    department_id=Department.objects.get(Department_Name=savedepartmentname)
-                    subject.Department_ID=department_id
-                    subject.save()
-                    return redirect('sammtuci')           
+                    try:
+                        Subject.objects.get(Subject_Name = form["subject_name"])
+                        form['errors'] = u"Эта учебная дисциплина уже существует! Проверьте поле названия!"
+                        return render(request, 'create_subject.html', {"department": department, 'form': form})
+                    except Subject.DoesNotExist:
+                        subject=Subject.objects.create(Subject_ID=form["subject_id"], Subject_Name=form["subject_name"])
+                        if request.POST.get("department_name"):
+                            savedepartmentname=Department()
+                            savedepartmentname.Department_Name=request.POST.get("department_name")
+                        department_id=Department.objects.get(Department_Name=savedepartmentname)
+                        subject.Department_ID=department_id
+                        subject.save()
+                        return redirect('sammtuci')           
         else:
             form['errors'] = u"У вас имеются пустые поля!"
             return render(request, 'create_subject.html', {"department": department, "form": form})
@@ -912,7 +1111,7 @@ def update_subject(request):
             try:
                 Subject.objects.get(Subject_Name = form["subject_name2"])
                 form['errors'] = u"Придумайте другое название учебной дисциплины!"
-                return render(request, 'update_subject', {"department": department, "subject": subject})
+                return render(request, 'update_subject.html', {"department": department, "subject": subject, "form": form})
             except Subject.DoesNotExist:
                 if request.POST.get("subject_name"):
                     savesubjectname=Subject()
@@ -957,29 +1156,33 @@ def create_subjectduringyear(request):
 				'semester': request.POST["semester"]
         }
 		if  form["semester"]:
-			try:
-				SubjectDuringYear.objects.get(Subject2_ID = form["subjectduringyear2_id"])
-				form['errors'] = u"Эта учебная дисциплина уже существует! Проверьте поле н!"
+			if not form["subjectduringyear_id"].isdigit() or not form["semester"].isdigit():
+				form['errors'] = u"Поля номера и семестра должны содержать только цифры!"
 				return render(request, 'create_subjectduringyear.html', {"branch": branch, "subject": subject, "teacher": teacher, 'form': form})
-			except SubjectDuringYear.DoesNotExist:
-				subjectduringyear=SubjectDuringYear.objects.create(Subject2_ID=form["subjectduringyear_id"], Semester=form["semester"])
-				if request.POST.get("branch_name"):
-					savebranchname=Branch()
-					savebranchname.Branch_Name=request.POST.get("branch_name")
-				if request.POST.get("subject_name"):
-					savesubjectname=Subject()
-					savesubjectname.Subject_Name=request.POST.get("subject_name")
-				if request.POST.get("teacher_id"):
-					saveteacherid=UserU()
-					saveteacherid.id=request.POST.get("teacher_id")
-				branch_id=Branch.objects.get(Branch_Name=savebranchname)
-				subject_id=Subject.objects.get(Subject_Name=savesubjectname)
-				teacher_id=UserU.objects.get(id=saveteacherid.id)
-				subjectduringyear.Branch_ID=branch_id
-				subjectduringyear.Subject_ID=subject_id
-				subjectduringyear.Teacher_ID=teacher_id
-				subjectduringyear.save()
-				return redirect('sammtuci')           
+			else:
+				try:
+					SubjectDuringYear.objects.get(Subject2_ID = form["subjectduringyear_id"])
+					form['errors'] = u"Эта учебная дисциплина уже существует! Проверьте поле н!"
+					return render(request, 'create_subjectduringyear.html', {"branch": branch, "subject": subject, "teacher": teacher, 'form': form})
+				except SubjectDuringYear.DoesNotExist:
+				    subjectduringyear=SubjectDuringYear.objects.create(Subject2_ID=form["subjectduringyear_id"], Semester=form["semester"])
+				    if request.POST.get("branch_name"):
+					    savebranchname=Branch()
+					    savebranchname.Branch_Name=request.POST.get("branch_name")
+				    if request.POST.get("subject_name"):
+					    savesubjectname=Subject()
+					    savesubjectname.Subject_Name=request.POST.get("subject_name")
+				    if request.POST.get("teacher_id"):
+					    saveteacherid=UserU()
+					    saveteacherid.id=request.POST.get("teacher_id")
+				    branch_id=Branch.objects.get(Branch_Name=savebranchname)
+				    subject_id=Subject.objects.get(Subject_Name=savesubjectname)
+				    teacher_id=UserU.objects.get(id=saveteacherid.id)
+				    subjectduringyear.Branch_ID=branch_id
+				    subjectduringyear.Subject_ID=subject_id
+				    subjectduringyear.Teacher_ID=teacher_id
+				    subjectduringyear.save()
+				    return redirect('sammtuci')           
 		else:
 			form['errors'] = u"У вас имеются пустые поля!"
 			return render(request, 'create_subjectduringyear.html', {"branch": branch, "subject": subject, "teacher": teacher,  "form": form})
@@ -994,7 +1197,7 @@ def update_subjectduringyear(request):
     subjectduringyear=SubjectDuringYear.objects.all()
     subject=Subject.objects.all()
     branch=Branch.objects.all()
-    teacher=UserU.objects.all()
+    teacher=UserU.objects.all().filter(User_Type=2)
     if request.method == "POST":
         form = {
 			    'subjectduringyear_name': request.POST["subjectduringyear_name"],
@@ -1042,4 +1245,328 @@ def delete_subjectduringyear(request):
     else:
         return render(request, 'delete_subjectduringyear.html', {"subjectduringyear": subjectduringyear})
     return render(request, 'delete_subjectduringyear.html', {"subjectduringyear": subjectduringyear})
+
+def create_task(request):
+    group=Group.objects.all()
+    subject=SubjectDuringYear.objects.all().filter(Teacher_ID=request.user.id)
+    if request.method == "POST" and request.FILES['text']:
+        form = {
+            'task_id': request.POST["task_id"],
+            'group_id': request.POST["group_id"],	
+            'subject_id': request.POST["subject_id"],
+            'deadline': request.POST["deadline"]
+        }
+        if  form["task_id"] and form["deadline"]:
+            if not form["task_id"].isdigit():
+                form['errors'] = u"Поле номера должно содержать только цифры!"
+                return render(request, 'create_task.html', {"group": group, "subject": subject, 'form': form})
+            else:
+                try:
+                    Task.objects.get(Task_ID = form["task_id"])
+                    form['errors'] = u"Это задание уже существует! Проверьте поле номера!"
+                    return render(request, 'create_task.html', {"group": group, "subject": subject, 'form': form})
+                except Task.DoesNotExist:
+                    try:
+                        datetime.strptime(form["deadline"], '%Y-%m-%d %H:%M:%S')                   
+                    except ValueError:
+                        form['errors'] = u"Неправильно введена дата!"
+                        return render(request, 'create_task.html', {"group": group, "subject": subject, 'form': form})
+                    else:
+                        if datetime.strptime(form["deadline"], '%Y-%m-%d %H:%M:%S')  < datetime.now():
+                            form['errors'] = u"Срок сдачи должен быть позже сегодняшнего дня!"
+                            return render(request, 'create_task.html', {"group": group, "subject": subject, 'form': form})
+                        else:
+                            task=Task.objects.create(Task_ID=form["task_id"], Deadline=form["deadline"])
+                            if request.POST.get("group_id"):
+                                savegroupid=Group()
+                                savegroupid.Group_ID=request.POST.get("group_id")
+                            if request.POST.get("subject_id"):
+                                savesubjectid=SubjectDuringYear()
+                                savesubjectid.Subject2_ID=request.POST.get("subject_id")
+                            group_id=Group.objects.get(Group_ID=savegroupid.Group_ID)
+                            subject_id=SubjectDuringYear.objects.get(Subject2_ID=savesubjectid.Subject2_ID)
+                            task.Group_ID=group_id
+                            task.Subject2_ID=subject_id
+                            task.Teacher_ID=request.user
+                            task.Text=request.FILES['text']
+                            fs=FileSystemStorage()
+                            filename=fs.save(task.Text.name, task.Text)
+                            uploaded_file_url=fs.url(filename)
+                            task.save()
+                            return redirect('sammtuci')           
+        else:
+            form['errors'] = u"У вас имеются пустые поля!"
+            return render(request, 'create_task.html', {"group": group, "subject": subject, "form": form})
+    else:
+        return render(request, 'create_task.html', {"group": group, "subject": subject})
+		
+def read_task(request):
+    task=Task.objects.all().filter(Teacher_ID=request.user.id)
+    return render(request, 'read_task.html', {"task": task})
+
+def update_task(request):
+    present=Present.objects.all()
+    student=UserU.objects.all().filter(User_Type=3)
+    presenttype=Present_Type.objects.all()
+    if request.method == "POST":
+        form = {
+			    'present_id': request.POST["present_id"],
+                'student_id': request.POST["student_id"],	
+				'presenttype_name': request.POST["presenttype_name"],
+                'quality': request.POST["quality"]				
+        }
+        if form["quality"]:
+            if request.POST.get("present_id"):
+                savepresent=Present()
+                savepresent.Present_ID=request.POST.get("present_id")
+            if request.POST.get("student_id"):
+                savestudentid=UserU()
+                savestudentid.id=request.POST.get("student_id")
+            if request.POST.get("presenttype_name"):
+                savepresenttypename=Present_Type()
+                savepresenttypename.Present_Type_Name=request.POST.get("presenttype_name")
+            present_id=Present.objects.get(Present_ID=savepresent.Present_ID)
+            student_id=UserU.objects.get(id=savestudentid.id)
+            presenttypename=Present_Type.objects.get(Present_Type_Name=savepresenttypename.Present_Type_Name)
+            present2=Present.objects.all().filter(Present_ID=present_id.Present_ID).update(Student_ID=student_id.id, 
+			Present_Type_ID=presenttypename.Present_Type_ID, Quality=form["quality"])
+            if (present_id.Present_Type_ID == 1):
+                student_id.Points += int(present.Quality)
+            else:
+                student_id.Points -= int(present.Quality)
+            student_id.save()
+            return redirect('sammtuci')          
+        else:
+            form['errors'] = u"У вас имеются пустые поля!"
+            return render(request, 'update_task.html', {"present": present, "student": student,  "presenttype": presenttype, "form": form})
+    else:
+        return render(request, 'update_task.html', {"present": present, "student": student,  "presenttype": presenttype})
+
+def delete_task(request):
+    task=Task.objects.all().filter(Teacher_ID=request.user.id)
+    if request.method == "POST":
+        form = {
+                'task_id': request.POST["task_id"],			
+        }
+        if request.POST.get("task_id"):
+            savetaskid=Task()
+            savetaskid.Task_ID=request.POST.get("task_id")
+        task2=Task.objects.filter(Task_ID=savetaskid.Task_ID).delete()
+        return redirect('sammtuci')
+    else:
+        return render(request, 'delete_task.html', {"task": task})
+    return render(request, 'delete_task.html', {"task": task})	
+	
+def create_present(request):
+	student=UserU.objects.all().filter(User_Type=3)
+	presenttype=Present_Type.objects.all()
+	if request.method == "POST":
+		form = {
+                'student_id': request.POST["student_id"],	
+				'presenttype_name': request.POST["presenttype_name"],
+				'quality': request.POST["quality"],
+        }
+		if form["quality"]:
+			if not form["quality"].isdigit():
+				form['errors'] = u"Поле количества баллов должно содержать только цифры!"
+				return render(request, 'create_present.html', {"student": student, "presenttype": presenttype, 'form': form})
+			else:
+				present=Present.objects.create(Quality=form["quality"])
+				if request.POST.get("student_id"):
+					savestudentid=UserU()
+					savestudentid.id=request.POST.get("student_id")
+				if request.POST.get("presenttype_name"):
+					savepresenttypename=Present_Type()
+					savepresenttypename.Present_Type_Name=request.POST.get("presenttype_name")
+				student_id=UserU.objects.get(id=savestudentid.id)
+				presenttypename=Present_Type.objects.get(Present_Type_Name=savepresenttypename.Present_Type_Name)
+				present.Student_ID=student_id
+				if (savepresenttypename.Present_Type_Name == "Поощрительные"):
+					student_id.Points += int(form["quality"])
+				if (savepresenttypename.Present_Type_Name == "Штрафные"):
+					student_id.Points -= int(form["quality"])
+				student_id.save()
+				present.save()
+				return redirect('sammtuci')           
+		else:
+			form['errors'] = u"У вас имеются пустые поля!"
+			return render(request, 'create_present.html', {"student": student, "presenttype": presenttype, "form": form})
+	else:
+		return render(request, 'create_present.html', {"student": student, "presenttype": presenttype})
+		
+def read_present(request):
+    present=Present.objects.all()
+    return render(request, 'read_present.html', {"present": present})
+
+def update_present(request):
+    present=Present.objects.all()
+    student=UserU.objects.all().filter(User_Type=3)
+    presenttype=Present_Type.objects.all()
+    if request.method == "POST":
+        form = {
+			    'present_id': request.POST["present_id"],
+                'student_id': request.POST["student_id"],	
+				'presenttype_name': request.POST["presenttype_name"],
+                'quality': request.POST["quality"]				
+        }
+        if form["quality"]:
+            if request.POST.get("present_id"):
+                savepresent=Present()
+                savepresent.Present_ID=request.POST.get("present_id")
+            if request.POST.get("student_id"):
+                savestudentid=UserU()
+                savestudentid.id=request.POST.get("student_id")
+            if request.POST.get("presenttype_name"):
+                savepresenttypename=Present_Type()
+                savepresenttypename.Present_Type_Name=request.POST.get("presenttype_name")
+            present_id=Present.objects.get(Present_ID=savepresent.Present_ID)
+            student_id=UserU.objects.get(id=savestudentid.id)
+            presenttypename=Present_Type.objects.get(Present_Type_Name=savepresenttypename.Present_Type_Name)
+            present2=Present.objects.all().filter(Present_ID=present_id.Present_ID).update(Student_ID=student_id.id, 
+			Present_Type_ID=presenttypename.Present_Type_ID, Quality=form["quality"])
+            if (present_id.Present_Type_Name == "Поощрительные"):
+                student_id.Points -= int(present.Quality)
+            if (present_id.Present_Type_Name == "Штрафные"):
+                student_id.Points += int(present.Quality)
+            student_id.save()
+            return redirect('sammtuci')          
+        else:
+            form['errors'] = u"У вас имеются пустые поля!"
+            return render(request, 'update_present.html', {"present": present, "student": student,  "presenttype": presenttype, "form": form})
+    else:
+        return render(request, 'update_present.html', {"present": present, "student": student,  "presenttype": presenttype})
+
+def delete_present(request):
+    present=Present.objects.all()
+    if request.method == "POST":
+        form = {
+                'present_name': request.POST["present_name"],			
+        }
+        if request.POST.get("present_name"):
+            savepresentname=Present()
+            savepresentname.Present_ID=request.POST.get("present_name")
+        present2=Present.objects.filter(Present_ID=savepresentname.Present_ID)
+        student_id=UserU.objects.get(present2.Student_ID)
+        if (present2.Present_Type_Name == "Поощрительные"):
+            student_id.Points -= int(present.Quality)
+        if (present2.Present_Type_Name == "Штрафные"):
+            student_id.Points += int(present.Quality)
+        student_id.save()
+        present2=Present.objects.filter(Present_ID=savepresentname.Present_ID).delete()
+        return redirect('sammtuci')
+    else:
+        return render(request, 'delete_present.html', {"present": present})
+    return render(request, 'delete_present.html', {"present": present})
+
+def create_taskgive(request):
+	task=Task.objects.all().filter(Group_ID=request.user.Group_ID)
+	if request.method == "POST" and request.FILES['textgive']:
+		form = {
+			    'taskgive_id': request.POST["taskgive_id"],
+                'task_id': request.POST["task_id"],	
+        }
+		if  form["taskgive_id"]:
+			if not form["taskgive_id"].isdigit():
+				form['errors'] = u"Поле номера должно содержать только цифры!"
+				return render(request, 'create_taskgive.html', {"task": task, 'form': form})
+			else:
+				try:
+					TaskGive.objects.get(GiveTask_ID = form["taskgive_id"])
+					form['errors'] = u"Эта сдача задание уже существует! Проверьте поле номера!"
+					return render(request, 'create_taskgive.html', {"task": task, 'form': form})
+				except TaskGive.DoesNotExist:
+					taskgive=TaskGive.objects.create(GiveTask_ID=form["taskgive_id"])
+					if request.POST.get("task_id"):
+						savetaskid=Task()
+						savetaskid.Task_ID=request.POST.get("task_id")
+					task_id=Task.objects.get(Task_ID=savetaskid.Task_ID)
+					taskgive.Task_ID=task_id
+					taskgive.Student_ID=request.user
+					taskgive.TextGive=request.FILES['textgive']
+					fs=FileSystemStorage()
+					filename=fs.save(taskgive.TextGive.name, taskgive.TextGive)
+					uploaded_file_url=fs.url(filename)
+					defaultmark=Mark()
+					defaultmark=Mark.objects.get(Mark_Text="-")
+					taskgive.Mark_ID=defaultmark
+					taskgive.DateComplete=timezone.now
+					taskgive.save()
+					return redirect('sammtuci')           
+		else:
+			form['errors'] = u"У вас имеются пустые поля!"
+			return render(request, 'create_taskgive.html', {"task": task, "form": form})
+	else:
+		return render(request, 'create_taskgive.html', {"task": task})
+
+def read_taskgive(request):
+    taskgive=TaskGive.objects.all()
+    return render(request, 'read_taskgive.html', {"taskgive": taskgive})	
+	
+def teacher_read_student(request):
+    group=Group.objects.all().order_by("Group_ID")
+    if request.method == "POST":
+        form = {
+                'group_id': request.POST["group_id"]				
+        }
+        if request.POST.get("group_id"):
+            savegroupid=Group()
+            savegroupid.Group_ID=request.POST.get("group_id")
+        group_id=savegroupid.Group_ID			
+        student=UserU.objects.all().filter(User_Type=3, Group_ID=group_id)
+        return render(request, 'teacher_read_student.html', {"group": group, "student": student})
+    else:
+        return render(request, 'teacher_read_student.html', {"group": group})
+    return render(request, 'teacher_read_student.html', {"group": group})
+	
+def teacher_read_student(request):
+    group=Group.objects.all().order_by("Group_ID")
+    if request.method == "POST":
+        form = {
+                'group_id': request.POST["group_id"]				
+        }
+        if request.POST.get("group_id"):
+            savegroupid=Group()
+            savegroupid.Group_ID=request.POST.get("group_id")
+        group_id=savegroupid.Group_ID			
+        student=UserU.objects.all().filter(User_Type=3, Group_ID=group_id)
+        return render(request, 'teacher_read_student.html', {"group": group, "student": student})
+    else:
+        return render(request, 'teacher_read_student.html', {"group": group})
+    return render(request, 'teacher_read_student.html', {"group": group})
+
+def teacher_read_subjectduringyear(request):
+    subjectduringyear=SubjectDuringYear.objects.all().filter(Teacher_ID=request.user.id)
+    return render(request, 'teacher_read_subjectduringyear.html', {"subjectduringyear": subjectduringyear})
+	
+def student_read_task(request):
+    subject=SubjectDuringYear.objects.all()
+    task=Task.objects.all().filter(Group_ID=request.user.Group_ID)
+    return render(request, 'student_read_task.html', {"subject": subject, "task": task})
+
+def teacher_read_taskgive(request):
+	taskgive=TaskGive.objects.all()
+	return render(request, 'teacher_read_taskgive.html', {"taskgive": taskgive})
+	
+def teacher_update_taskgive(request):
+	taskgive=TaskGive.objects.all()
+	mark=Mark.objects.all()
+	if request.method == "POST":
+		form = {
+                'taskgive_id': request.POST["taskgive_id"],
+				'mark_id': request.POST["mark_id"],
+        }
+		if request.POST.get("taskgive_id"):
+			savetaskgiveid=TaskGive()
+			savetaskgiveid.GiveTask_ID=request.POST.get("taskgive_id")
+		if request.POST.get("mark_id"):
+			savemarkid=Mark()
+			savemarkid.Mark_Text=request.POST.get("mark_id")
+		taskgive_id=savetaskgiveid.GiveTask_ID	
+		mark_id=savemarkid.Mark_Text
+		mark_id2=Mark.objects.get(Mark_Text=mark_id)
+		taskgive2=TaskGive.objects.all().filter(GiveTask_ID=taskgive_id).update(Mark_ID=mark_id2.Mark)
+		return render(request, 'teacher_update_taskgive.html', {"taskgive": taskgive, "mark": mark})
+	else:
+		return render(request, 'teacher_update_taskgive.html', {"taskgive": taskgive, "mark": mark})
+	return render(request, 'teacher_update_taskgive.html', {"taskgive": taskgive, "mark": mark})
 # Create your views here.

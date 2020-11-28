@@ -8,6 +8,12 @@
         {% load static %}
     </div>
 	<body bgcolor="#800000">
+	<script>
+   function changeFunc($i) 
+   {
+       document.getElementById("Изменить").disabled = false;
+   }
+  </script>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}">
 	<div class="reg">
 		{% if request.user.is_authenticated %} 
@@ -22,7 +28,7 @@
 			<h1><font color="ffffff">Изменить направление</font></h1>
 			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
 			<form method="POST">{% csrf_token %}
-				<p><select name="branch_name"> 
+				<p><select name="branch_name" onchange="changeFunc(value)"> 
 				<option value="Выберите название направления" disabled="true" selected>Выберите название направления</option>
 				{% for branch in branch %}
 				<option>{{ branch.Branch_Name }}</option>
@@ -31,7 +37,7 @@
 				</option>
 				{% endfor %}></select></p>			
 				<p><input type="text" name="branch_name2" placeholder="Новое название направления" value="{{ form.branch_name2 }}" autocomplete="off"></p>
-				<p><input type="submit" value="Изменить"></p>
+				<p><input type="submit" id="Изменить" value="Изменить" disabled="true"></p>
 				{{ form.errors }}			
 			</form>
 	</body>

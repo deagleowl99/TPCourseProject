@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<div class="header">
+	<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width,
+		initial-scale=1">
+        {% load static %}
+    </div>
+	<body bgcolor="#800000">
+	<link rel="stylesheet" href="{% static 'css/article.css' %}">
+	<div class="reg">
+		{% if request.user.is_authenticated %} 
+		{% else %}
+				<a href = "../login" style="color: #ffffff">Вход</a>
+			</div>
+		{% endif %}		
+		<div class="Logo">
+			<div class="final">
+			</div>
+			</div>
+			<h1><font color="ffffff">Список сдач заданий</font></h1>
+			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+			<table border="1">
+			<tr>
+			<th>Номер сдачи задания</th>
+			<th>Номер задания</th>
+			<th>Файл</th>
+			<th>Дата сдачи</th>
+			<th>Оценка</th>
+			</tr>
+			{% for taskgive in taskgive %}
+			<tr><th>{{taskgive.GiveTask_ID}}</th><th>{{taskgive.Task_ID}}</th><th><a href="static/images/{{task.Text}}" style="color: #ffffff" download>Файл</a>
+			</th><th>{{taskgive.Date_Complete}}</th>
+			{% if taskgive.Date_Complete < taskgive.Task_ID.Deadline %}
+			<th><font color="green">{{taskgive.Mark_ID}}</font></tr>
+			{% else %}
+			<th><font color="red">{{taskgive.Mark_ID}}</font></th></tr>
+			{% endif %}
+			{% endfor %}
+			</table>
+	</body>
+</html>

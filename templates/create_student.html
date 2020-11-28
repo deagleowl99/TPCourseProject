@@ -8,6 +8,12 @@
         {% load static %}
     </div>
 	<body bgcolor="#800000">
+	<script>
+   function changeFunc($i) 
+   {
+       document.getElementById("Добавить").disabled = false;
+   }
+  </script>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}">
 	<div class="reg">
 		{% if request.user.is_authenticated %} 
@@ -30,7 +36,7 @@
 				<p><input type="text" name="password" placeholder="Пароль" value="{{ form.password }}" autocomplete="off"></p>
 				<p><input type="text" name="start_date" placeholder="Дата поступления" value="{{ form.start_date }}" autocomplete="off"></p>
 				<p><input type="text" name="points" placeholder="Успеваемость" value="{{ form.points }}" autocomplete="off"></p>
-				<p><select name="group_name"> 
+				<p><select name="group_name" onchange="changeFunc(value)"> 
 				<option value="Выберите номер группы" disabled="true" selected>Выберите номер группы</option>
 				{% for group in group %}
 				<option>{{ group.Group_ID }}</option>
@@ -38,7 +44,7 @@
 				{{group.Group_ID|capfirst}}
 				</option>
 				{% endfor %}></select></p>
-				<p><input type="submit" value="Добавить"></p>
+				<p><input type="submit" id="Добавить" value="Добавить" disabled="true"></p>
 				{{ form.errors }}			
 			</form>
 	</body>

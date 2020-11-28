@@ -1,0 +1,140 @@
+body {
+	font-family: Tahoma, Arial, sans-serif;
+	color: #ffffff;
+}
+.article h1 {
+	background: #1abc9c;
+	font-family: Tahoma, Arial, sans-serif;
+	color: #ffffff;
+}
+.aboutus {
+	position: relative;
+	top: -240px; 
+    left: 230px;  
+    bottom: 0; right: 0;
+}
+.blue {
+	color: white;
+	background-color: blue;
+	}
+.reg {
+	background: #700000;
+	padding:10px;
+}
+.Logo {
+	background: #800000;
+	color: #ffffff;
+}
+.content {
+	position: relative;
+	top: -270px; 
+    left: 230px;  
+    bottom: 0; right: 0;
+}
+.contenth {
+	position: relative;
+	top: -250px; 
+    left: 230px;  
+    bottom: 0; right: 0;
+}
+.archive {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.header p {
+	color: #10521d;
+	font-size: xx-large;
+}
+
+.post-title a {
+	color: #10521d;
+}
+
+.article-author {
+	width: 50%;
+	float: left;
+}
+
+.article-created-date {
+	text-align: right;
+} 
+
+.to-archive {
+	font-family: Tahoma, Arial, sans-serif;
+	text-align: right;
+}
+
+.post-title {
+	width: 50%;
+	float: left;
+}
+
+.fold-button {
+	margin: 28 auto 0;
+	float: right;
+	color: #10521d;
+}
+
+.one-post.folded .article-info,
+.one-post.folded .article-text {
+	display: none;
+}
+
+.one-post {
+	position: relative;
+	color: #10521d;
+}
+
+.one-post-shadow {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	background: black;
+	z-index: -1;
+	opacity: 0;
+}
+
+.archive-background
+{
+	position: absolute;
+	left: 0;
+	width: 100%;
+	height: 50%;
+	background: #99f0f5;
+}
+
+.header-text-area {
+	position: relative;
+}
+
+.header-background
+{
+	position: absolute;
+	z-index: -1;
+	left: -20;
+	top: -40;
+	width: 102.2%;
+	height: 300%;
+	background: #ffffff;
+}
+
+.header a {
+	color: 4a9f5b;
+}
+
+.login {
+	margin: 0 50%;
+}
+
+
+
+
+
+
+
+
+
+

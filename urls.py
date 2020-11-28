@@ -1,5 +1,7 @@
 from django.urls import path, include
 from TP import views
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
@@ -34,6 +36,10 @@ urlpatterns = [
 	path('read_year', views.read_year, name = 'read_year'),
 	path('update_year', views.update_year, name = 'update_year'),
 	path('delete_year', views.delete_year, name = 'delete_year'),
+	path('create_presenttype', views.create_presenttype, name = 'create_presenttype'),
+	path('read_presenttype', views.read_presenttype, name = 'read_presenttype'),
+	path('update_presenttype', views.update_presenttype, name = 'update_presenttype'),
+	path('delete_presenttype', views.delete_presenttype, name = 'delete_presenttype'),
 	path('create_group', views.create_group, name = 'create_group'),
 	path('read_group', views.read_group, name = 'read_group'),
 	path('update_group', views.update_group, name = 'update_group'),
@@ -54,5 +60,22 @@ urlpatterns = [
 	path('read_subjectduringyear', views.read_subjectduringyear, name = 'read_subjectduringyear'),
 	path('update_subjectduringyear', views.update_subjectduringyear, name = 'update_subjectduringyear'),
 	path('delete_subjectduringyear', views.delete_subjectduringyear, name = 'delete_subjectduringyear'),
-	
+	path('create_task', views.create_task, name = 'create_task'),
+	path('read_task', views.read_task, name = 'read_task'),
+	path('update_task', views.update_task, name = 'update_task'),
+	path('delete_task', views.delete_task, name = 'delete_task'),
+	path('create_present', views.create_present, name = 'create_present'),
+	path('read_present', views.read_present, name = 'read_present'),
+	path('update_present', views.update_present, name = 'update_present'),
+	path('delete_present', views.delete_present, name = 'delete_present'),
+	path('create_taskgive', views.create_taskgive, name = 'create_taskgive'),
+	path('read_taskgive', views.read_taskgive, name = 'read_taskgive'),
+	path('teacher_read_student', views.teacher_read_student, name = 'teacher_read_student'),
+	path('teacher_read_subjectduringyear', views.teacher_read_subjectduringyear, name = 'teacher_read_subjectduringyear'),
+	path('student_read_task', views.student_read_task, name = 'student_read_task'),
+	path('teacher_read_taskgive', views.teacher_read_taskgive, name = 'teacher_read_taskgive'),
+	path('teacher_update_taskgive', views.teacher_update_taskgive, name = 'teacher_update_taskgive'),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

@@ -8,6 +8,12 @@
         {% load static %}
     </div>
 	<body bgcolor="#800000">
+	<script>
+   function changeFunc($i) 
+   {
+       document.getElementById("Удалить").disabled = false;
+   }
+  </script>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}">
 	<div class="reg">
 		{% if request.user.is_authenticated %} 
@@ -22,7 +28,7 @@
 			<h1><font color="ffffff">Удалить группу</font></h1>
 			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
 			<form method="POST">{% csrf_token %}
-				<p><select name="group_name"> 
+				<p><select name="group_name" onchange="changeFunc(value)"> 
 				<option value="Выберите номер группы" disabled="true" selected>Выберите номер группы</option>
 				{% for group in group %}
 				<option>{{ group.Group_ID }}</option>
@@ -30,7 +36,7 @@
 				{{group.Group_ID|capfirst}}
 				</option>
 				{% endfor %}></select></p>			
-				<p><input type="submit" value="Удалить"></p>
+				<p><input type="submit" id="Удалить" value="Удалить" disabled="true"></p>
 				{{ form.errors }}			
 			</form>
 	</body>
