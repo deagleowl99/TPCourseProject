@@ -10,36 +10,37 @@
 	<body bgcolor="#800000">
 	<script>
 	var n = 0;
+	var n1 = 0;
    function changeFunc($i) 
    {   
-	   n = n + 1;
-	   if (n == 2)
+	   n = 1;
+	   if (n == 1 && n1 == 1)
 	   {
        document.getElementById("Добавить").disabled = false;
 	   }
    }
    function changeFunc2($i) 
    {
-	   n = n + 1;
-	   if (n == 2)
+	   n1 = 1;
+	   if (n == 1 && n1 == 1)
 	   {
        document.getElementById("Добавить").disabled = false;
 	   }	     
    }
   </script>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}">
-	<div class="reg">
-		{% if request.user.is_authenticated %} 
-		{% else %}
-				<a href = "../login" style="color: #ffffff">Вход</a>
-			</div>
-		{% endif %}		
-		<div class="Logo">
-			<div class="final">
-			</div>
-			</div>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" 
+	integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+				<nav class="navbar bg-primary">
+				<ul class="navbar-nav">
+				<div class="card bg-warning text-white">
+				<div class="card-body">
+				<class="nav-item"><a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+				</div>
+				</div>
+				</nav>		
+		<div class="p-3 mb-2 bg-primary text-white">
 			<h1><font color="ffffff">Добавление баллов</font></h1>
-			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
 			<form method="POST">{% csrf_token %}
 				<p><input type="text" name="quality" placeholder="Количество баллов" value="{{ form.quality }}" autocomplete="off"></p>
 				<select name="student_id"onchange="changeFunc(value)"> 
@@ -49,7 +50,7 @@
 				{% if student == current_student %}selected="selected"{% endif %}>
 				{{student.id|capfirst}}
 				</option>
-				{% endfor %}></select>
+				{% endfor %}></select></p>
 				<p><select name="presenttype_name" onchange="changeFunc2(value)"> 
 				<option value="Выберите название вида баллов" disabled="true" selected>Выберите название вида баллов</option>
 				{% for presenttype in presenttype %}
@@ -58,8 +59,17 @@
 				{{presenettype.Present_Type_Name|capfirst}}
 				</option>
 				{% endfor %}></select></p>
-				<p><input type="submit" id="Добавить" value="Добавить" disabled="true"></p>
-				{{ form.errors }}			
+				<p><input type="submit" class="btn btn-warning" disabled="true" value="Добавить" id="Добавить"></p>
+				<p></p>
+				<nav class="navbar bg-primary">
+				<ul class="navbar-nav">
+				<div class="card bg-danger text-white">
+				<div class="card-body">
+				<li class="nav-item">Проверка корректности ввода данных: {{ form.errors }}</li>
+				</div>
+				</div>
+				</nav>			
 			</form>
+			</div>
 	</body>
 </html>

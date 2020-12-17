@@ -10,44 +10,46 @@
 	<body bgcolor="#800000">
 		<script>
 	var n = 0;
+	var n1 = 0;
+	var n2 = 0;
    function changeFunc($i) 
    {   
-	   n = n + 1;
-	   if (n == 3)
+	   n = 1;
+	   if (n == 1 && n1 == 1 && n2 == 1)
 	   {
        document.getElementById("Изменить").disabled = false;
 	   }
    }
    function changeFunc2($i) 
    {
-	   n = n + 1;
-	   if (n == 3)
+	   n1 = 1;
+	   if (n == 1 && n1 == 1 && n2 == 1)
 	   {
        document.getElementById("Изменить").disabled = false;
 	   }	     
    }
    function changeFunc3($i) 
    {
-	   n = n + 1;
-	   if (n == 3)
+	   n2 = 1;
+	   if (n == 1 && n1 == 1 && n2 == 1)
 	   {
        document.getElementById("Изменить").disabled = false;
 	   }	     
    }
   </script>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}">
-	<div class="reg">
-		{% if request.user.is_authenticated %} 
-		{% else %}
-				<a href = "../login" style="color: #ffffff">Вход</a>
-			</div>
-		{% endif %}		
-		<div class="Logo">
-			<div class="final">
-			</div>
-			</div>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" 
+	integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+				<nav class="navbar bg-primary">
+				<ul class="navbar-nav">
+				<div class="card bg-warning text-white">
+				<div class="card-body">
+				<class="nav-item"><a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+				</div>
+				</div>
+				</nav>		
+		<div class="p-3 mb-2 bg-primary text-white">
 			<h1><font color="ffffff">Изменение выдачи баллов</font></h1>
-			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
 			<form method="POST">{% csrf_token %}
 				<p><select name="present_id" onchange="changeFunc(value)"> 
 				<option value="Выберите номер выдачи баллов" disabled="true" selected>Выберите номер выдачи баллов</option>
@@ -65,7 +67,7 @@
 				{% if student == current_student %}selected="selected"{% endif %}>
 				{{student.id|capfirst}}
 				</option>
-				{% endfor %}></select>
+				{% endfor %}></select></p>
 				<p><select name="presenttype_name" onchange="changeFunc3(value)"> 
 				<option value="Выберите вид баллов" disabled="true" selected>Выберите вид баллов</option>
 				{% for presenttype in presenttype %}
@@ -74,8 +76,17 @@
 				{{presentype.Present_Type_Name|capfirst}}
 				</option>
 				{% endfor %}></select></p>
-				<p><input type="submit" id="Изменить" value="Изменить" disabled="true"></p>
-				{{ form.errors }}			
+				<p><input type="submit" class="btn btn-warning" disabled="true" value="Изменить" id="Изменить"></p>
+				<p></p>
+				<nav class="navbar bg-primary">
+				<ul class="navbar-nav">
+				<div class="card bg-danger text-white">
+				<div class="card-body">
+				<li class="nav-item">Проверка корректности ввода данных: {{ form.errors }}</li>
+				</div>
+				</div>
+				</nav>			
 			</form>
+			</div>
 	</body>
 </html>

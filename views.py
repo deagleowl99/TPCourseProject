@@ -289,7 +289,7 @@ def update_department(request):
                 return redirect('sammtuci')          
         else:
             form['errors'] = u"У вас имеются пустые поля!"
-            return render(request, 'update_department.html', {"faculty": faculty, "form": form})
+            return render(request, 'update_department.html', {"faculty": faculty, "department": department, "form": form})
     else:
         return render(request, 'update_department.html', {"faculty": faculty, "department": department})	
 
@@ -1272,10 +1272,6 @@ def create_task(request):
                         form['errors'] = u"Неправильно введена дата!"
                         return render(request, 'create_task.html', {"group": group, "subject": subject, 'form': form})
                     else:
-                        if datetime.strptime(form["deadline"], '%Y-%m-%d %H:%M:%S')  < datetime.now():
-                            form['errors'] = u"Срок сдачи должен быть позже сегодняшнего дня!"
-                            return render(request, 'create_task.html', {"group": group, "subject": subject, 'form': form})
-                        else:
                             task=Task.objects.create(Task_ID=form["task_id"], Deadline=form["deadline"])
                             if request.POST.get("group_id"):
                                 savegroupid=Group()
@@ -1305,42 +1301,46 @@ def read_task(request):
     return render(request, 'read_task.html', {"task": task})
 
 def update_task(request):
-    present=Present.objects.all()
-    student=UserU.objects.all().filter(User_Type=3)
-    presenttype=Present_Type.objects.all()
-    if request.method == "POST":
+    task=Task.objects.all().filter(Teacher_ID=request.user.id)
+    group=Group.objects.all()
+    subject=SubjectDuringYear.objects.all().filter(Teacher_ID=request.user.id)
+    if request.method == "POST" and request.FILES['text']:
         form = {
-			    'present_id': request.POST["present_id"],
-                'student_id': request.POST["student_id"],	
-				'presenttype_name': request.POST["presenttype_name"],
-                'quality': request.POST["quality"]				
+            'task2_id': request.POST["task2_id"],
+            'group_id': request.POST["group_id"],	
+            'subject_id': request.POST["subject_id"],
+            'deadline': request.POST["deadline"]
         }
-        if form["quality"]:
-            if request.POST.get("present_id"):
-                savepresent=Present()
-                savepresent.Present_ID=request.POST.get("present_id")
-            if request.POST.get("student_id"):
-                savestudentid=UserU()
-                savestudentid.id=request.POST.get("student_id")
-            if request.POST.get("presenttype_name"):
-                savepresenttypename=Present_Type()
-                savepresenttypename.Present_Type_Name=request.POST.get("presenttype_name")
-            present_id=Present.objects.get(Present_ID=savepresent.Present_ID)
-            student_id=UserU.objects.get(id=savestudentid.id)
-            presenttypename=Present_Type.objects.get(Present_Type_Name=savepresenttypename.Present_Type_Name)
-            present2=Present.objects.all().filter(Present_ID=present_id.Present_ID).update(Student_ID=student_id.id, 
-			Present_Type_ID=presenttypename.Present_Type_ID, Quality=form["quality"])
-            if (present_id.Present_Type_ID == 1):
-                student_id.Points += int(present.Quality)
+        if  form["deadline"]:
+            try:
+                datetime.strptime(form["deadline"], '%Y-%m-%d %H:%M:%S')                   
+            except ValueError:
+                form['errors'] = u"Неправильно введена дата!"
+                return render(request, 'update_task.html', {"task": task, "group": group, "subject": subject, 'form': form})
             else:
-                student_id.Points -= int(present.Quality)
-            student_id.save()
-            return redirect('sammtuci')          
+                if request.POST.get("task2_id"):
+                    savetaskid=Task()
+                    savetaskid.Task_ID=request.POST.get("task2_id")
+                if request.POST.get("group_id"):
+                    savegroupid=Group()
+                    savegroupid.Group_ID=request.POST.get("group_id")
+                if request.POST.get("subject_id"):
+                    savesubjectid=SubjectDuringYear()
+                    savesubjectid.Subject2_ID=request.POST.get("subject_id")
+                group_id=Group.objects.get(Group_ID=savegroupid.Group_ID)
+                subject_id=SubjectDuringYear.objects.get(Subject2_ID=savesubjectid.Subject2_ID)
+                savetaskid.Text=request.FILES['text']
+                fs=FileSystemStorage()
+                filename=fs.save(savetaskid.Text.name, savetaskid.Text)
+                uploaded_file_url=fs.url(filename)
+                task2=Task.objects.all().filter(Task_ID=savetaskid.Task_ID).update(Group_ID=savegroupid.Group_ID, 
+                Subject2_ID=savesubjectid.Subject2_ID, Deadline=form["deadline"], Text=request.FILES['text'])          
+                return redirect('sammtuci')           
         else:
             form['errors'] = u"У вас имеются пустые поля!"
-            return render(request, 'update_task.html', {"present": present, "student": student,  "presenttype": presenttype, "form": form})
+            return render(request, 'update_task.html', {"task": task, "group": group, "subject": subject, "form": form})
     else:
-        return render(request, 'update_task.html', {"present": present, "student": student,  "presenttype": presenttype})
+        return render(request, 'update_task.html', {"task": task, "group": group, "subject": subject})
 
 def delete_task(request):
     task=Task.objects.all().filter(Teacher_ID=request.user.id)
@@ -1358,41 +1358,44 @@ def delete_task(request):
     return render(request, 'delete_task.html', {"task": task})	
 	
 def create_present(request):
-	student=UserU.objects.all().filter(User_Type=3)
-	presenttype=Present_Type.objects.all()
-	if request.method == "POST":
+	student=UserU.objects.all().filter(User_Type=3) # чтение таблицы пользователей
+	presenttype=Present_Type.objects.all() # чтение таблицы видов баллов
+	if request.method == "POST": # метод протокола HTTP
 		form = {
-                'student_id': request.POST["student_id"],	
-				'presenttype_name': request.POST["presenttype_name"],
-				'quality': request.POST["quality"],
+                'student_id': request.POST["student_id"], # номер студента
+				'presenttype_name': request.POST["presenttype_name"], # название вида баллов
+				'quality': request.POST["quality"], # количество баллов
         }
-		if form["quality"]:
-			if not form["quality"].isdigit():
-				form['errors'] = u"Поле количества баллов должно содержать только цифры!"
-				return render(request, 'create_present.html', {"student": student, "presenttype": presenttype, 'form': form})
-			else:
-				present=Present.objects.create(Quality=form["quality"])
-				if request.POST.get("student_id"):
-					savestudentid=UserU()
+		if form["quality"]: # проверка заполнения поля количества
+			if not form["quality"].isdigit(): # если строка содержит буквенные символы
+				form['errors'] = u"Поле количества баллов должно содержать только цифры!" # вывод сообщения об ошибке
+				return render(request, 'create_present.html', {"student": student, "presenttype": presenttype, 'form': form}) # возврат на страницу
+			else: # если формат заполнения данных верен
+				present=Present.objects.create(Quality=form["quality"]) # предварительное создание экземпляра выдачи баллов
+				if request.POST.get("student_id"): # прием выбора номера студента
+					savestudentid=UserU() 
 					savestudentid.id=request.POST.get("student_id")
-				if request.POST.get("presenttype_name"):
+				if request.POST.get("presenttype_name"): # прием выбора вида баллов
 					savepresenttypename=Present_Type()
 					savepresenttypename.Present_Type_Name=request.POST.get("presenttype_name")
+				# сохранение данных, введенных в выборочных полях формы
 				student_id=UserU.objects.get(id=savestudentid.id)
 				presenttypename=Present_Type.objects.get(Present_Type_Name=savepresenttypename.Present_Type_Name)
-				present.Student_ID=student_id
-				if (savepresenttypename.Present_Type_Name == "Поощрительные"):
+				present.Present_Type_ID=presenttypename
+				present.Student_ID=student_id 
+				present.save() # сохранение данных выдачи баллов
+	            # изменение столбца "успеваеомсть" в соответствии со следующими условиями
+				if (savepresenttypename.Present_Type_Name == "Поощрительные"): 
 					student_id.Points += int(form["quality"])
 				if (savepresenttypename.Present_Type_Name == "Штрафные"):
-					student_id.Points -= int(form["quality"])
-				student_id.save()
-				present.save()
-				return redirect('sammtuci')           
-		else:
-			form['errors'] = u"У вас имеются пустые поля!"
-			return render(request, 'create_present.html', {"student": student, "presenttype": presenttype, "form": form})
+					student_id.Points -= int(form["quality"]) 
+				student_id.save() # сохранение данных студента
+				return redirect('sammtuci') # если обработка данных прошла успешно
+		else: # если не все поля заполнены
+			form['errors'] = u"У вас имеются пустые поля!" # вывод сообщения об ошибке
+			return render(request, 'create_present.html', {"student": student, "presenttype": presenttype, "form": form}) # возврат на страницу
 	else:
-		return render(request, 'create_present.html', {"student": student, "presenttype": presenttype})
+		return render(request, 'create_present.html', {"student": student, "presenttype": presenttype}) # гиперссылка для выдачи баллов
 		
 def read_present(request):
     present=Present.objects.all()
@@ -1446,12 +1449,6 @@ def delete_present(request):
             savepresentname=Present()
             savepresentname.Present_ID=request.POST.get("present_name")
         present2=Present.objects.filter(Present_ID=savepresentname.Present_ID)
-        student_id=UserU.objects.get(present2.Student_ID)
-        if (present2.Present_Type_Name == "Поощрительные"):
-            student_id.Points -= int(present.Quality)
-        if (present2.Present_Type_Name == "Штрафные"):
-            student_id.Points += int(present.Quality)
-        student_id.save()
         present2=Present.objects.filter(Present_ID=savepresentname.Present_ID).delete()
         return redirect('sammtuci')
     else:
@@ -1490,6 +1487,10 @@ def create_taskgive(request):
 					defaultmark=Mark.objects.get(Mark_Text="-")
 					taskgive.Mark_ID=defaultmark
 					taskgive.DateComplete=timezone.now
+					taskgive.TextGive=request.FILES['textgive']
+					fs1=FileSystemStorage()
+					filename=fs1.save(taskgive.TextGive.name, taskgive.TextGive)
+					uploaded_file_url=fs1.url(filename)
 					taskgive.save()
 					return redirect('sammtuci')           
 		else:
