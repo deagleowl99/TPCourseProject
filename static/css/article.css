@@ -21,6 +21,14 @@ body {
 	background: #700000;
 	padding:10px;
 }
+
+.formerror {
+	padding-top: 30px;
+	padding-bottom: 30px;
+	margin-bottom: 30px;
+	background-color: red;
+}
+
 .Logo {
 	background: #800000;
 	color: #ffffff;

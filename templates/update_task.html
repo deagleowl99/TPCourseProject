@@ -11,10 +11,12 @@
 	<script>
 	var n = 0;
 	var n1 = 0;
+	var n2 = 0;
+	var n3 = 0;
    function changeFunc($i) 
    {   
 	   n = 1;
-	   if (n == 1 && n1 == 1)
+	   if (n == 1 && n1 == 1 && n2 == 1 && n3 == 1)
 	   {
        document.getElementById("Изменить").disabled = false;
 	   }
@@ -22,7 +24,23 @@
    function changeFunc2($i) 
    {
 	   n1 = 1;
-	   if (n == 1 && n1 == 1)
+	   if (n == 1 && n1 == 1 && n2 == 1 && n3 == 1)
+	   {
+       document.getElementById("Изменить").disabled = false;
+	   }	     
+   }
+   function changeFunc3($i) 
+   {
+	   n2 = 1;
+	   if (n == 1 && n1 == 1 && n2 == 1 && n3 == 1)
+	   {
+       document.getElementById("Изменить").disabled = false;
+	   }	     
+   }
+   function changeFunc4($i) 
+   {
+	   n3 = 1;
+	   if (n == 1 && n1 == 1 && n2 == 1 && n3 == 1)
 	   {
        document.getElementById("Изменить").disabled = false;
 	   }	     
@@ -40,29 +58,33 @@
 				</div>
 				</nav>		
 		<div class="p-3 mb-2 bg-primary text-white">
-			<h1><font color="ffffff">Изменить студента</font></h1>
-			<form method="POST">{% csrf_token %}
-				<p><select name="student_id" onchange="changeFunc(value)"> 
-				<option value="Выберите номер студента" disabled="true" selected>Выберите номер студента</option>
-				{% for student in student %}
-				<option>{{student.id}}</option>
-				{% if student == current_student %}selected="selected"{% endif %}>
-				{{student.Surname|capfirst}}
+			<h1><font color="ffffff">Изменение задания</font></h1>
+			<form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %}
+			{{ form.as_p }}
+				<p><select name="task2_id" onchange="changeFunc(value)"> 
+				<option value="Выберите номер задания" disabled="true" selected>Выберите номер задания</option>
+				{% for task in task %}
+				<option>{{ task.Task_ID}}</option></p>
+				{% if task == current_task %}selected="selected"{% endif %}>
+				{{task.Task_ID|capfirst}}
 				</option>
 				{% endfor %}></select></p>
-				<p><input type="text" name="surname" placeholder="Фамилия" value="{{ form.surname }}" autocomplete="off"></p>
-				<p><input type="text" name="name" placeholder="Имя" value="{{ form.name }}" autocomplete="off"></p>
-				<p><input type="text" name="fathername" placeholder="Отчество" value="{{ form.fathername }}" autocomplete="off"></p>
-				<p><input type="text" name="login" placeholder="Логин" value="{{ form.login }}" autocomplete="off"></p>
-				<p><input type="text" name="mail" placeholder="Почта" value="{{ form.mail }}" autocomplete="off"></p>
-				<p><input type="text" name="start_date" placeholder="Дата поступления" value="{{ form.start_date }}" autocomplete="off"></p>
-				<p><input type="text" name="points" placeholder="Успеваемость" value="{{ form.points }}" autocomplete="off"></p>
-				<p><select name="group_name" onchange="changeFunc2(value)">
+				<p><input type="text" name="deadline" placeholder="Срок сдачи" value="{{ form.deadline }}" autocomplete="off"></p>
+				<p><input type="file" id="text" name="text" onchange="changeFunc2(value)"></p>
+				<select name="group_id" onchange="changeFunc3(value)"> 
 				<option value="Выберите номер группы" disabled="true" selected>Выберите номер группы</option>
 				{% for group in group %}
 				<option>{{ group.Group_ID }}</option>
 				{% if group == current_group %}selected="selected"{% endif %}>
 				{{group.Group_ID|capfirst}}
+				</option>
+				{% endfor %}></select></p>
+				<p><select name="subject_id" onchange="changeFunc4(value)"> 
+				<option value="Выберите название преподаваемой дисцплины" disabled="true" selected>Выберите номер преподаваемой дисциплины</option>
+				{% for subject in subject %}
+				<option>{{ subject.Subject2_ID}}</option></p>
+				{% if subject == current_subject %}selected="selected"{% endif %}>
+				{{subject.Subject2_ID|capfirst}}
 				</option>
 				{% endfor %}></select></p>
 				<p><input type="submit" class="btn btn-warning" disabled="true" value="Изменить" id="Изменить"></p>

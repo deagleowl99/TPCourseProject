@@ -10,47 +10,48 @@
 	<body bgcolor="#800000">
 	<script>
 	var n = 0;
+	var n1 = 0;
+	var n2 = 0;
    function changeFunc($i) 
    {   
-	   n = n + 1;
-	   if (n == 3)
+	   n = 1;
+	   if (n == 1 && n1 == 1 && n2 == 1)
 	   {
        document.getElementById("Добавить").disabled = false;
 	   }
    }
    function changeFunc2($i) 
    {
-	   if(document.getElementById("text").value != "") 
-	   {
-	   n = n + 1;
-       }
-	   if (n == 3)
+	   n1 = 1;
+	   if (n == 1 && n1 == 1 && n2 == 1)
 	   {
        document.getElementById("Добавить").disabled = false;
 	   }	     
    }
    function changeFunc3($i) 
    {
-	   n = n + 1;
-	   if (n == 3)
+	   n2 = 1;
+	   if (n == 1 && n1 == 1 && n2 == 1)
 	   {
        document.getElementById("Добавить").disabled = false;
 	   }	     
    }
   </script>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}">
-	<div class="reg">
-		{% if request.user.is_authenticated %} 
-		{% else %}
-				<a href = "../login" style="color: #ffffff">Вход</a>
-			</div>
-		{% endif %}		
-		<div class="Logo">
-			<div class="final">
-			</div>
-			</div>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" 
+	integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+				<nav class="navbar bg-primary">
+				<ul class="navbar-nav">
+				<div class="card bg-warning text-white">
+				<div class="card-body">
+				<class="nav-item"><a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
+				</div>
+				</div>
+				</nav>
+		{% if request.user.is_authenticated %}
+		{% if user.User_Type.User_Type_Name == "Преподаватель" %}				
+		<div class="p-3 mb-2 bg-primary text-white">
 			<h1><font color="ffffff">Добавление задания</font></h1>
-			<a href = "{% url 'sammtuci' %}" style="color: #ffffff">Назад</a>
 			<form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %}
 			{{ form.as_p }}
 				<p><input type="text" name="task_id" placeholder="Номер задания" value="{{ form.task_id }}" autocomplete="off"></p>
@@ -63,17 +64,29 @@
 				{% if group == current_group %}selected="selected"{% endif %}>
 				{{group.Group_ID|capfirst}}
 				</option>
-				{% endfor %}></select>
+				{% endfor %}></select></p>
 				<p><select name="subject_id" onchange="changeFunc3(value)"> 
 				<option value="Выберите название преподаваемой дисцплины" disabled="true" selected>Выберите номер преподаваемой дисциплины</option>
 				{% for subject in subject %}
-				<option>{{ subject.Subject2_ID}}</option>
+				<option>{{ subject.Subject2_ID}}</option></p>
 				{% if subject == current_subject %}selected="selected"{% endif %}>
 				{{subject.Subject2_ID|capfirst}}
 				</option>
 				{% endfor %}></select></p>
-				<p><input type="submit" id="Добавить" value="Добавить" disabled="true"></p>
-				{{ form.errors }}			
+				<p><input type="submit" class="btn btn-warning" disabled="true" value="Добавить" id="Добавить"></p>
+				<p></p>
+				<nav class="navbar bg-primary">
+				<ul class="navbar-nav">
+				<div class="card bg-danger text-white">
+				<div class="card-body">
+				<li class="nav-item">Проверка корректности ввода данных: {{ form.errors }}</li>
+				</div>
+				</div>
+				</nav>			
 			</form>
+			</div>
+			{% else %}
+			{% endif %}
+			{% endif %}
 	</body>
 </html>

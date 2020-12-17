@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 	<div class="header">
@@ -8,7 +7,12 @@
 	{% block content %}
 	{% endblock %}
 		<link rel="stylesheet" href="{% static 'css/article.css' %}">
-		<div class="reg"><h><a href = "../registration" style="color: #ffffff">Регистрация</a>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css">
+		<div class="p-3 mb-2 bg-warning text-dark">
+		<nav class="navbar bg-warning">
+		<ul class="navbar-nav">
+		<div class="card bg-info text-white">
+		<div class="card-body">		
 		{% if request.user.is_authenticated %}
 		{{user.username}}
 		{{user.Surname}}
@@ -18,91 +22,261 @@
 		Администратор
 		{% else %}
 		{{user.User_Type}}		
-		{% endif %}
-		<a href = "{% url 'logout' %}" style="color: #ffffff">Выйти</a>
-		<a href = "{% url 'password_change' %}" style="color: #ffffff">Сменить пароль</a>
+		{% endif %}		
+		<a href = "{% url 'logout' %}" style="color: #ffffff">Выйти</a>		
 		{% else %}
 		<a href = "../login" style="color: #ffffff">Вход</a>
 		{% endif %}
+		</nav>
 		</div>
+		</nav>
+		</div>
+		<div class="p-3 mb-2 bg-primary text-white">
 		{% if user.is_superuser %}
-		<p><a href = "{% url 'create_branch' %}" style="color: #ffffff">Добавить направление</a>
-		<a href = "{% url 'read_branch' %}" style="color: #ffffff">Список направлений</a>
-		<a href = "{% url 'update_branch' %}" style="color: #ffffff">Изменить направление</a>
-		<a href = "{% url 'delete_branch' %}" style="color: #ffffff">Удалить направление</a></p>
-		<p><a href = "{% url 'create_faculty' %}" style="color: #ffffff">Добавить факультет</a>
-		<a href = "{% url 'read_faculty' %}" style="color: #ffffff">Список факультетов</a>
-		<a href = "{% url 'update_faculty' %}" style="color: #ffffff">Изменить факультет</a>
-		<a href = "{% url 'delete_faculty' %}" style="color: #ffffff">Удалить факультет</a></p>
-		<p><a href = "{% url 'create_department' %}" style="color: #ffffff">Добавить кафедру</a>		
-		<a href = "{% url 'read_department' %}" style="color: #ffffff">Список кафедр</a>
-		<a href = "{% url 'update_department' %}" style="color: #ffffff">Изменить кафедру</a>
-		<a href = "{% url 'delete_department' %}" style="color: #ffffff">Удалить кафедру</a></p>
-		<p><a href = "{% url 'create_usertype' %}" style="color: #ffffff">Добавить тип пользователя</a>
-		<a href = "{% url 'read_usertype' %}" style="color: #ffffff">Список типов пользователя</a>
-		<a href = "{% url 'update_usertype' %}" style="color: #ffffff">Изменить тип пользователя</a>
-		<a href = "{% url 'delete_usertype' %}" style="color: #ffffff">Удалить тип пользователя</a></p>
-		<p><a href = "{% url 'create_deaneryuser' %}" style="color: #ffffff">Добавить сотрудника учебного отдела</a>
-		<a href = "{% url 'read_deaneryuser' %}" style="color: #ffffff">Список сотрудников учебного отдела</a>
-		<a href = "{% url 'update_deaneryuser' %}" style="color: #ffffff">Изменить сотрудника учебного отдела</a>
-		<a href = "{% url 'delete_deaneryuser' %}" style="color: #ffffff">Удалить сотрудника учебного отдела</a></p>
-		<p><a href = "{% url 'create_mark' %}" style="color: #ffffff">Добавить оценку</a>
-		<a href = "{% url 'read_mark' %}" style="color: #ffffff">Список оценок</a>
-		<a href = "{% url 'update_mark' %}" style="color: #ffffff">Изменить оценку</a>
-		<a href = "{% url 'delete_mark' %}" style="color: #ffffff">Удалить оценку</a></p>
-		<p><a href = "{% url 'create_year' %}" style="color: #ffffff">Добавить учебный год</a>
-		<a href = "{% url 'read_year' %}" style="color: #ffffff">Список учебных лет</a>
-		<a href = "{% url 'update_year' %}" style="color: #ffffff">Изменить учебный год</a>
-		<a href = "{% url 'delete_year' %}" style="color: #ffffff">Удалить учебный год</a></p>
-		<p><a href = "{% url 'create_presenttype' %}" style="color: #ffffff">Добавить вид баллов</a>
-		<a href = "{% url 'read_presenttype' %}" style="color: #ffffff">Список видов баллов</a>
-		<a href = "{% url 'update_presenttype' %}" style="color: #ffffff">Изменить вид баллов</a>
-		<a href = "{% url 'delete_presenttype' %}" style="color: #ffffff">Удалить вид баллов</a></p>
+		<div class="row">
+		<div class="col-sm-3">
+		<div class="card" style="width: 17rem;">
+		<div class="card-header bg-success">Направления</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_branch'" type="submit" Value="Добавить направление"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_branch'" type="submit" Value="Список направлений"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_branch'" type="submit" Value="Изменить направление"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_branch'" type="submit" Value="Удалить направление"></p>
+		</div>
+		</div>
+		</div>
+		<div class="col-sm-3">
+		<div class="card" style="width: 17rem;">
+		<div class="card-header bg-success">Факультеты</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_faculty'" type="submit" Value="Добавить факультет"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_faculty'" type="submit" Value="Список факультетов"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_faculty'" type="submit" Value="Изменить факультет"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_faculty'" type="submit" Value="Удалить факультет"></p>
+		</div>
+		</div>
+		</div>
+		<div class="col-sm-3">
+		<div class="card" style="width: 17rem;">
+		<div class="card-header bg-success">Кафедры</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_department'" type="submit" Value="Добавить кафедру"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_department'" type="submit" Value="Список кафедр"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_department'" type="submit" Value="Изменить кафедру"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_department'" type="submit" Value="Удалить кафедру"></p>
+		</div>
+		</div>
+		</div>
+		<div class="col-sm-3">
+		<div class="card" style="width: 17rem;">
+		<div class="card-header bg-success">Типы пользователей</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_usertype'" type="submit" Value="Добавить тип пользвоателя"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_usertype'" type="submit" Value="Список типов пользователя"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_usertype'" type="submit" Value="Изменить тип пользователя"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_usertype'" type="submit" Value="Удалить тип пользователя"></p>
+		</div>
+		</div>
+		</div>
+		</div>
+		<p></p>
+		<div class="row">
+		<div class="col-sm-3">
+		<div class="card" style="width: 22rem;">
+		<div class="card-header bg-success">Сотрудники учебного отдела</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_deaneryuser'" type="submit" Value="Добавить сотрудника учебного отдела"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_deaneryuser'" type="submit" Value="Список сотрудников учебного отдела"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_deaneryuser'" type="submit" Value="Изменить сотрудника учебного отдела"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_deaneryuser'" type="submit" Value="Удалить сотрудника учебного отдела"></p>
+		</div>
+		</div>
+		</div>
+		<div class="col-sm-3">
+		<div class="card" style="width: 17rem;">
+		<div class="card-header bg-success">Оценки</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_mark'" type="submit" Value="Добавить оценку"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_mark'" type="submit" Value="Список оценок"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_mark'" type="submit" Value="Изменить оценку"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_mark'" type="submit" Value="Удалить оценку"></p>
+		</div>
+		</div>
+		</div>
+		<div class="col-sm-3">
+		<div class="card" style="width: 17rem;">
+		<div class="card-header bg-success">Учебные годы</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_year'" type="submit" Value="Добавить учебный год"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_year'" type="submit" Value="Список учебных лет"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_year'" type="submit" Value="Изменить учебный год"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_year'" type="submit" Value="Удалить учебный год"></p>
+		</div>
+		</div>
+		</div>
+		<div class="col-sm-3">
+		<div class="card" style="width: 17rem;">
+		<div class="card-header bg-success">Виды баллов</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_presenttype'" type="submit" Value="Добавить вид баллов"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_presenttype'" type="submit" Value="Список видов баллов"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_presenttype'" type="submit" Value="Изменить вид баллов"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_presenttype'" type="submit" Value="Удалить вид баллов"></p>
+		</div>
+		</div>
+		</div>
+		</div>
 		{% else %}
 		{% if user.User_Type.User_Type_Name == "Сотрудник учебного отдела" %}
-		<p><a href = "{% url 'create_group' %}" style="color: #ffffff">Добавить группу студентов</a>
-		<a href = "{% url 'read_group' %}" style="color: #ffffff">Список групп студентов</a>
-		<a href = "{% url 'update_group' %}" style="color: #ffffff">Изменить группу студентов</a>
-		<a href = "{% url 'delete_group' %}" style="color: #ffffff">Удалить группу студентов</a></p>
-		<p><a href = "{% url 'create_teacher' %}" style="color: #ffffff">Добавить преподавателя</a>		
-		<a href = "{% url 'read_teacher' %}" style="color: #ffffff">Список преподавателей</a>
-		<a href = "{% url 'update_teacher' %}" style="color: #ffffff">Изменить преподавателя</a>
-		<a href = "{% url 'delete_teacher' %}" style="color: #ffffff">Удалить преподавателя</a></p>
-		<p><a href = "{% url 'create_student' %}" style="color: #ffffff">Добавить студента</a>
-		<a href = "{% url 'read_student' %}" style="color: #ffffff">Список студентов</a>
-		<a href = "{% url 'update_student' %}" style="color: #ffffff">Изменить студента</a>
-		<a href = "{% url 'delete_student' %}" style="color: #ffffff">Удалить студента</a></p>
-		<p><a href = "{% url 'create_subject' %}" style="color: #ffffff">Добавить учебную дисциплину</a>
-		<a href = "{% url 'read_subject' %}" style="color: #ffffff">Список учебных дисциплин</a>
-		<a href = "{% url 'update_subject' %}" style="color: #ffffff">Изменить учебную дисциплину</a>
-		<a href = "{% url 'delete_subject' %}" style="color: #ffffff">Удалить учебную дисциплину</a></p>
-		<p><a href = "{% url 'create_subjectduringyear' %}" style="color: #ffffff">Добавить преподаваемую дисциплину</a>
-		<a href = "{% url 'read_subjectduringyear' %}" style="color: #ffffff">Список преподаваемых дисциплин</a>
-		<a href = "{% url 'update_subjectduringyear' %}" style="color: #ffffff">Изменить преподаваемую дисциплину</a>
-		<a href = "{% url 'delete_subjectduringyear' %}" style="color: #ffffff">Удалить преподаваемую дисциплину</a></p>
+		<div class="row">
+		<div class="col-sm-3">
+		<div class="card" style="width: 17rem;">
+		<div class="card-header bg-success">Группы студентов</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_group'" type="submit" Value="Добавить группу"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_group'" type="submit" Value="Список групп"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_group'" type="submit" Value="Изменить группу"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_group'" type="submit" Value="Удалить группу"></p>
+		</div>
+		</div>
+		</div>
+		<div class="col-sm-3">
+		<div class="card" style="width: 17rem;">
+		<div class="card-header bg-success">Преподаватели</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_teacher'" type="submit" Value="Добавить преподавателя"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_teacher'" type="submit" Value="Список преподавателей"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_teacher'" type="submit" Value="Изменить преподавателя"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_teacher'" type="submit" Value="Удалить преподавателя"></p>
+		</div>
+		</div>
+		</div>
+		<div class="col-sm-3">
+		<div class="card" style="width: 17rem;">
+		<div class="card-header bg-success">Студенты</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_student'" type="submit" Value="Добавить студента"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_student'" type="submit" Value="Список студентов"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_student'" type="submit" Value="Изменить студента"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_student'" type="submit" Value="Удалить студента"></p>
+		</div>
+		</div>
+		</div>
+		</div>
+		<p></p>
+		<div class="row">
+		<div class="col-sm-3">
+		<div class="card" style="width: 19rem;">
+		<div class="card-header bg-success">Учебные дисциплины</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_subject'" type="submit" Value="Добавить учебную дисциплину"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_subject'" type="submit" Value="Список учебных дисциплин"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_subject'" type="submit" Value="Изменить учебную дисциплину"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_subject'" type="submit" Value="Удалить учебную дисцплину"></p>
+		</div>
+		</div>
+		</div>
+		<div class="col-sm-3">
+		<div class="card" style="width: 23rem;">
+		<div class="card-header bg-success">Преподаваемые дисциплины</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_subjectduringyear'" type="submit" Value="Добавить преподаваемую дисцплину"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_subjectduringyear'" type="submit" Value="Список преподаваемых дисциплин"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_subjectduringyear'" type="submit" Value="Изменить преподаваемую дисциплину"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_subjectduringyear'" type="submit" Value="Удалить преподаваемую дисцплину"></p>
+		</div>
+		</div>
+		</div>
+		</div>
+		</div>
 		{% else %}
 		{% if user.User_Type.User_Type_Name == "Преподаватель" %}
-		<p><a href = "{% url 'create_task' %}" style="color: #ffffff">Добавить задание</a>
-		<a href = "{% url 'read_task' %}" style="color: #ffffff">Список заданий</a>
-		<a href = "{% url 'update_task' %}" style="color: #ffffff">Изменить задание</a>
-		<a href = "{% url 'delete_task' %}" style="color: #ffffff">Удалить задание</a></p>
-		<p><a href = "{% url 'create_present' %}" style="color: #ffffff">Добавить баллы</a>
-		<a href = "{% url 'read_present' %}" style="color: #ffffff">Список баллов</a>
-		<a href = "{% url 'update_present' %}" style="color: #ffffff">Изменить баллы</a>
-		<a href = "{% url 'delete_present' %}" style="color: #ffffff">Удалить баллы</a></p>
-		<p><a href = "{% url 'teacher_read_taskgive' %}" style="color: #ffffff">Список сдач заданий</a>
-		<a href = "{% url 'teacher_update_taskgive' %}" style="color: #ffffff">Выдача оценки за сдачу задания</a></p>
-		<p><a href = "{% url 'teacher_read_student' %}" style="color: #ffffff">Список студентов по группе</a></p>
-		<p><a href = "{% url 'teacher_read_subjectduringyear' %}" style="color: #ffffff">Список ваших преподаваемых дисциплин</a></p>
+		<div class="row">
+		<div class="col-sm-3">
+		<div class="card" style="width: 17rem;">
+		<div class="card-header bg-success">Задания</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_task'" type="submit" Value="Добавить задание"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_task'" type="submit" Value="Список заданий"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_task'" type="submit" Value="Изменить задание"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_task'" type="submit" Value="Удалить задание"></p>
+		</div>
+		</div>
+		</div>
+		<div class="col-sm-3">
+		<div class="card" style="width: 17rem;">
+		<div class="card-header bg-success">Баллы</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_present'" type="submit" Value="Добавить выдачу баллов"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_present'" type="submit" Value="Список выдач баллов"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/update_present'" type="submit" Value="Изменить выдачу баллов"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/delete_present'" type="submit" Value="Удалить выдачу баллов"></p>
+		</div>
+		</div>
+		</div>
+		</div>
+		<p></p>
+		<div class="row">
+		<div class="col-sm-3">
+		<div class="card" style="width: 24rem;">
+		<div class="card-header bg-success">Панель для преподавателя</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/teacher_read_taskgive'" type="submit" Value="Список сдач заданий"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/teacher_update_taskgive'" type="submit" Value="Выдача оценки за сдачу задания"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/teacher_read_student'" type="submit" Value="Список студентов по группам"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/teacher_read_subjectduringyear'" type="submit" Value="Список ваших преподаваемых дисциплин"></p>
+		</div>
+		</div>
+		</div>
+		</div>
 		{% else %}
 		{% if user.User_Type.User_Type_Name == "Студент" %}
-		<a href = "{% url 'student_read_task' %}" style="color: #ffffff">Список заданий</a>
-		<p><a href = "{% url 'create_taskgive' %}" style="color: #ffffff">Создать сдачу задания</a>
-		<a href = "{% url 'read_taskgive' %}" style="color: #ffffff">Список сдач заданий</a>
+		<div class="row">
+		<div class="col-sm-3">
+		<div class="card" style="width: 24rem;">
+		<div class="card-header bg-success">Панель для cтудента</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/student_read_task'" type="submit" Value="Список заданий"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/create_taskgive'" type="submit" Value="Создать сдачу задания"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_taskgive'" type="submit" Value="Список сдач заданий"></p>
+		</div>
+		</div>
+		</div>
+		</div>
+		{% else %}
+		<div class="row">
+		<div class="col-sm-3">
+		<div class="card" style="width: 24rem;">
+		<div class="card-header bg-success">Панель для пользователя</div>
+		<div class="card-body">
+		<h5 class="card-title text-dark">Список запросов</h5>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_branch'" type="submit" Value="Список направлений"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_faculty'" type="submit" Value="Список факультетов"></p>
+		<p><input class="btn btn-primary btn-block" onClick="window.location.href='http://127.0.0.1:8000/read_department'" type="submit" Value="Список кафедр"></p>
+		</div>
+		</div>
+		</div>
+		</div>
 		{% endif %}
 		{% endif %}
 		{% endif %}
-		{{form.errors}}
 		{% endif %}
 	</body>
 </html>
