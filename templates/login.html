@@ -25,15 +25,16 @@
 			<h1><font color="ffffff">Вход</font></h1>
 			<form method="POST">{% csrf_token %}
 				<input type="text" name="login" placeholder="Логин" value="{{ form.login }}" autocomplete="off">
+				<input type="text" name="email" placeholder="Почта" value="{{ form.email }}" autocomplete="off">
 				<input type="password" name="password" placeholder="Пароль" value="{{ form.password }}" autocomplete="off">
-				<input type="submit" class="btn btn-warning" value="Вход">				
+				<input type="submit" class="btn btn-warning" value="Вход" autocomplete="off">				
 			</form>
 			<p></p>
 				<nav class="navbar bg-primary">
 				<ul class="navbar-nav">
 				<div class="card bg-danger text-white">
 				<div class="card-body">
-				<li class="nav-item">Проверка корректности ввода данных: {{ form.errors }}</li>
+				<li class="nav-item">Проверка корректности ввода данных: {{ form.fifa }} {{ form.errors }}</li>
 				</div>
 				</div>
 				</nav>

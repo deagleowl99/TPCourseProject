@@ -13,7 +13,11 @@ from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.utils import timezone
 from datetime import datetime
+from django.core.signing import Signer
+from django.core import signing
+import hashlib
 import os
+
 def create_user(request):
     if request.method == "POST":
         form = {
@@ -39,7 +43,9 @@ def create_user(request):
                         form['errors'] = u"Почта введена не правильно!"
                         return render(request, 'create_user.html', {'form': form})
                     else:
-                        user=UserU.objects.create_user(form["login"], form["mail"], form["password"])
+                        signer = Signer()
+                        newusername=signing.dumps(list(form["login"]))					
+                        user=UserU.objects.create_user(newusername, form["mail"], form["password"])
                         user.Surname=form["surname"] 
                         user.Name=form["name"] 
                         user.Fathername=form["fathername"]           
@@ -55,17 +61,19 @@ def login_user(request):
     if request.method == "POST":
         form = {
             'login': request.POST["login"],
-            'password': request.POST["password"]
+            'password': request.POST["password"],
+			'email': request.POST["email"]
         }
-        if form["login"] and form["password"]:
-            user = authenticate(username=form["login"], password=form["password"])
-            if user == None:
+        if form["login"] and form["password"] and form["email"]:
+            user2=UserU.objects.get(email=form["email"])
+            if form["login"] != ''.join(list(signing.loads(user2.username))):
                 form['errors'] = u"Неверный логин или пароль"
                 return render(request, 'login.html', {'form': form})
-            else:
-                login(request, user) 
+            else:				
+                login(request, user2) 
                 return redirect('sammtuci')
         else:
+            user2=UserU.objects.get(email=form["email"])
             form['errors'] = u"У вас имеются пустые поля!"
             return render(request, 'login.html', {'form': form})
     else:
@@ -414,7 +422,9 @@ def create_deaneryuser(request):
                             form['errors'] = u"Почта введена не правильно!"
                             return render(request, 'create_deaneryuser.html', {"faculty": faculty, 'form': form})
                         else:
-                            user=UserU.objects.create_user(form["login"], form["mail"], form["password"])
+                            signer = Signer()
+                            newusername=signing.dumps(list(form["login"]))					
+                            user=UserU.objects.create_user(newusername, form["mail"], form["password"])
                             user.Surname=form["surname"] 
                             user.Name=form["name"] 
                             user.Fathername=form["fathername"]
@@ -835,8 +845,10 @@ def create_teacher(request):
                         if  not "@" in form["mail"] or not "." in form["mail"] or form["mail"].find("@") > form["mail"].rfind("."):
                             form['errors'] = u"Почта введена не правильно!"
                             return render(request, 'create_teacher.html', {"department": department, 'form': form})
-                        else:					
-                            user=UserU.objects.create_user(form["login"], form["mail"], form["password"])
+                        else:
+                            signer = Signer()
+                            newusername=signing.dumps(list(form["login"]))						
+                            user=UserU.objects.create_user(newusername, form["mail"], form["password"])
                             user.Surname=form["surname"] 
                             user.Name=form["name"] 
                             user.Fathername=form["fathername"]
@@ -963,7 +975,9 @@ def create_student(request):
                             form['errors'] = u"Почта введена не правильно!"
                             return render(request, 'create_student.html', {"group": group, 'form': form})
                         else:
-                            user=UserU.objects.create_user(form["login"], form["mail"], form["password"])
+                            signer = Signer()
+                            newusername=signing.dumps(list(form["login"]))
+                            user=UserU.objects.create_user(newusername, form["mail"], form["password"])
                             user.Surname=form["surname"] 
                             user.Name=form["name"] 
                             user.Fathername=form["fathername"]
@@ -1384,7 +1398,7 @@ def create_present(request):
 				present.Present_Type_ID=presenttypename
 				present.Student_ID=student_id 
 				present.save() # сохранение данных выдачи баллов
-	            # изменение столбца "успеваеомсть" в соответствии со следующими условиями
+	            # изменение столбца "успеваемость" в соответствии со следующими условиями
 				if (savepresenttypename.Present_Type_Name == "Поощрительные"): 
 					student_id.Points += int(form["quality"])
 				if (savepresenttypename.Present_Type_Name == "Штрафные"):
